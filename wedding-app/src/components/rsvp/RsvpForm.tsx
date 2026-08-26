@@ -55,10 +55,10 @@ export function RsvpForm({
     return (
       <div className="text-center py-4">
         <CheckCircle2 className="w-12 h-12 mx-auto text-green-600 mb-3" />
-        <h2 className="font-heading text-lg font-semibold text-slate-700">
+        <h2 className="font-heading text-lg font-semibold text-ink-700">
           Response received!
         </h2>
-        <p className="text-sm text-slate-500 mt-1">Thank you.</p>
+        <p className="text-sm text-ink-500 mt-1">Thank you.</p>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export function RsvpForm({
   return (
     <form onSubmit={submit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+        <label className="block text-sm font-medium text-ink-700 mb-1">
           Your response
         </label>
         <div className="grid grid-cols-2 gap-2">
@@ -77,7 +77,7 @@ export function RsvpForm({
             className={`min-h-[48px] rounded-lg border text-sm font-semibold transition-colors ${
               status === "attending"
                 ? "bg-green-600 border-green-600 text-white"
-                : "border-slate-300 text-slate-600 hover:bg-slate-50"
+                : "border-ink-300 text-ink-600 hover:bg-ink-50"
             }`}
           >
             Joyfully accept
@@ -88,8 +88,8 @@ export function RsvpForm({
             aria-pressed={status === "declined"}
             className={`min-h-[48px] rounded-lg border text-sm font-semibold transition-colors ${
               status === "declined"
-                ? "bg-slate-600 border-slate-600 text-white"
-                : "border-slate-300 text-slate-600 hover:bg-slate-50"
+                ? "bg-ink-600 border-ink-600 text-white"
+                : "border-ink-300 text-ink-600 hover:bg-ink-50"
             }`}
           >
             Regretfully decline

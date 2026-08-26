@@ -48,7 +48,7 @@ export function BudgetRing({
         y="47%"
         textAnchor="middle"
         dominantBaseline="middle"
-        className="fill-slate-700"
+        className="fill-ink-700"
         fontSize={size / 7}
         fontWeight="700"
         fontFamily="Georgia, serif"

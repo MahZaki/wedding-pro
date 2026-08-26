@@ -51,7 +51,6 @@ export function OnboardingForm() {
     },
   });
 
-  // eslint-disable-next-line react-hooks/purity -- react-hook-form's supported live-preview API
   const values = watch();
 
   // Live allocation preview (pure function, no DB)
@@ -92,7 +91,7 @@ export function OnboardingForm() {
           <div
             key={n}
             className={`h-1.5 flex-1 rounded-full ${
-              n <= step ? "bg-rose-500" : "bg-slate-200"
+              n <= step ? "bg-bordeaux-500" : "bg-ink-200"
             }`}
           />
         ))}
@@ -101,7 +100,7 @@ export function OnboardingForm() {
       <form onSubmit={handleSubmit(onSubmit)}>
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="font-heading text-lg font-semibold text-slate-700">
+            <h2 className="font-heading text-lg font-semibold text-ink-700">
               About your wedding
             </h2>
             <Input
@@ -120,7 +119,7 @@ export function OnboardingForm() {
 
         {step === 2 && (
           <div className="space-y-4">
-            <h2 className="font-heading text-lg font-semibold text-slate-700">
+            <h2 className="font-heading text-lg font-semibold text-ink-700">
               Budget &amp; guests
             </h2>
             <Input
@@ -143,7 +142,7 @@ export function OnboardingForm() {
 
         {step === 3 && (
           <div className="space-y-4">
-            <h2 className="font-heading text-lg font-semibold text-slate-700">
+            <h2 className="font-heading text-lg font-semibold text-ink-700">
               Where is your wedding?
             </h2>
             <Select
@@ -156,7 +155,7 @@ export function OnboardingForm() {
               error={errors.region_tier?.message}
               {...register("region_tier")}
             />
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-ink-400">
               We adjust category allocations for local cost of living.
             </p>
           </div>
@@ -164,7 +163,7 @@ export function OnboardingForm() {
 
         {step === 4 && preview && (
           <div className="space-y-4">
-            <h2 className="font-heading text-lg font-semibold text-slate-700">
+            <h2 className="font-heading text-lg font-semibold text-ink-700">
               Your budget plan
             </h2>
             {preview.warning && (
@@ -173,20 +172,20 @@ export function OnboardingForm() {
                 <p className="text-xs text-yellow-700">{preview.warning}</p>
               </div>
             )}
-            <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden max-h-80 overflow-y-auto">
+            <ul className="divide-y divide-stone-100 border border-stone-200 rounded-lg overflow-hidden max-h-80 overflow-y-auto">
               {preview.categories.map((c) => (
                 <li
                   key={c.name}
                   className="flex items-center justify-between px-4 py-2.5 bg-white"
                 >
-                  <span className="text-sm text-slate-600">{c.name}</span>
-                  <span className="text-sm font-semibold text-slate-700">
+                  <span className="text-sm text-ink-600">{c.name}</span>
+                  <span className="text-sm font-semibold text-ink-700">
                     {formatMoney(c.amount)}
                   </span>
                 </li>
               ))}
             </ul>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-ink-400">
               Total:{" "}
               <span className="font-semibold">
                 {formatMoney(
@@ -211,7 +210,7 @@ export function OnboardingForm() {
           ) : (
             <Link
               href="/login"
-              className="text-sm text-slate-400 hover:text-slate-600 min-h-[44px] flex items-center"
+              className="text-sm text-ink-400 hover:text-ink-600 min-h-[44px] flex items-center"
             >
               Cancel
             </Link>

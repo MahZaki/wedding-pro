@@ -152,7 +152,7 @@ export function SeatingBoard({
     <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
       <div className="space-y-6">
         <div className="flex items-center justify-between gap-3">
-          <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-700">
+          <h1 className="font-heading text-2xl lg:text-3xl font-bold text-ink-700">
             Seating Chart
           </h1>
           {!readOnly && (
@@ -173,7 +173,7 @@ export function SeatingBoard({
           {/* Canvas */}
           <div className="flex-1 min-w-0">
             {tables.length === 0 ? (
-              <div className="bg-white rounded-lg border border-gray-200 h-64 flex items-center justify-center">
+              <div className="bg-white rounded-lg border border-stone-200 h-64 flex items-center justify-center">
                 <EmptyState
                   icon={Table2}
                   title="No tables configured"
@@ -186,7 +186,7 @@ export function SeatingBoard({
                 />
               </div>
             ) : (
-              <div className="relative bg-white rounded-lg border border-gray-200 overflow-auto h-[560px] touch-none">
+              <div className="relative bg-white rounded-lg border border-stone-200 overflow-auto h-[560px] touch-none">
                 <div
                   className="relative"
                   style={{
@@ -214,14 +214,14 @@ export function SeatingBoard({
               </div>
             )}
             {isPending && (
-              <p className="text-xs text-slate-400 mt-2">Saving…</p>
+              <p className="text-xs text-ink-400 mt-2">Saving…</p>
             )}
           </div>
         </div>
 
         <DragOverlay>
           {activeGuest && (
-            <span className="inline-flex items-center px-3 py-2 rounded-full bg-rose-500 text-white text-xs font-medium shadow-lg">
+            <span className="inline-flex items-center px-3 py-2 rounded-full bg-bordeaux-500 text-white text-xs font-medium shadow-lg">
               {activeGuest.name}
             </span>
           )}
@@ -247,14 +247,14 @@ function UnassignedPool({
       ref={setNodeRef}
       className={cn(
         "lg:w-64 flex-shrink-0 bg-white rounded-lg border p-3 max-h-[420px] lg:max-h-none overflow-y-auto",
-        isOver ? "border-rose-400 bg-rose-50" : "border-gray-200"
+        isOver ? "border-bordeaux-400 bg-bordeaux-50" : "border-stone-200"
       )}
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2 sticky top-0 bg-white pb-1">
+      <p className="text-xs font-semibold uppercase tracking-wide text-ink-400 mb-2 sticky top-0 bg-white pb-1">
         Unassigned ({guests.length})
       </p>
       {guests.length === 0 ? (
-        <p className="text-xs text-slate-400 py-4 text-center">
+        <p className="text-xs text-ink-400 py-4 text-center">
           Everyone has a seat!
         </p>
       ) : (
@@ -294,7 +294,7 @@ function GuestChip({
       className={cn(
         "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium cursor-grab active:cursor-grabbing select-none touch-none",
         small ? "max-w-[150px]" : "",
-        conflict ? "bg-yellow-100 text-yellow-800" : "bg-slate-100 text-slate-700",
+        conflict ? "bg-yellow-100 text-yellow-800" : "bg-ink-100 text-ink-700",
         draggable.isDragging && "opacity-40"
       )}
       title={conflict ? "Has a conflict tag" : undefined}
@@ -347,19 +347,19 @@ function TableCard({
         className={cn(
           "rounded-lg border-2 bg-white shadow-sm transition-colors",
           table.shape === "round" ? "rounded-full w-36 h-36" : "w-44 min-h-28",
-          full ? "border-red-300" : "border-slate-300",
-          droppable.isOver && "border-rose-500 bg-rose-50",
+          full ? "border-red-300" : "border-ink-300",
+          droppable.isOver && "border-bordeaux-500 bg-bordeaux-50",
           draggable.isDragging && "opacity-60"
         )}
       >
         <div className="p-2 text-center">
-          <p className="font-heading text-sm font-bold text-slate-700 leading-tight">
+          <p className="font-heading text-sm font-bold text-ink-700 leading-tight">
             {table.label ?? `Table ${table.table_number}`}
           </p>
           <p
             className={cn(
               "text-xs mt-0.5",
-              full ? "text-red-500 font-semibold" : "text-slate-400"
+              full ? "text-red-500 font-semibold" : "text-ink-400"
             )}
           >
             {guests.length}/{table.capacity}
@@ -375,13 +375,13 @@ function TableCard({
         <button
           onClick={onDelete}
           aria-label={`Delete ${table.label ?? `table ${table.table_number}`}`}
-          className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-gray-200 shadow flex items-center justify-center text-slate-400 hover:text-red-600"
+          className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-stone-200 shadow flex items-center justify-center text-ink-400 hover:text-red-600"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       )}
       {!readOnly && (
-        <GripHorizontal className="absolute -bottom-1 -right-1 w-4 h-4 text-slate-300" />
+        <GripHorizontal className="absolute -bottom-1 -right-1 w-4 h-4 text-ink-300" />
       )}
     </div>
   );

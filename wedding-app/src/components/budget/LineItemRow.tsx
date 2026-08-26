@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { CalendarPlus } from "lucide-react";
 import { cn, formatMoney } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
@@ -46,15 +46,15 @@ export function LineItemRow({
       <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
         {/* Name + paid toggle */}
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-slate-700 truncate flex items-center gap-2">
+          <p className="text-sm font-medium text-ink-700 truncate flex items-center gap-2">
             {item.name}
             {item.is_paid ? (
               <Badge variant="success">Paid</Badge>
             ) : isPending ? (
-              <span className="text-xs text-slate-400">saving…</span>
+              <span className="text-xs text-ink-400">saving…</span>
             ) : null}
           </p>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-ink-400 mt-0.5">
             Est. {formatMoney(item.estimated_cost)}
             {variance !== null && (
               <span
@@ -82,7 +82,7 @@ export function LineItemRow({
                 saveActual(e.target.value);
               }
             }}
-            className="w-28 min-h-[40px] px-2 border border-slate-300 rounded-lg text-sm text-right focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+            className="w-28 min-h-[40px] px-2 border border-ink-300 rounded-lg text-sm text-right focus:outline-none focus:ring-2 focus:ring-bordeaux-500 focus:border-transparent"
             aria-label={`Actual cost for ${item.name}`}
           />
         )}
@@ -91,7 +91,7 @@ export function LineItemRow({
           <>
             <button
               onClick={togglePaid}
-              className="min-h-[44px] px-3 rounded-lg border border-slate-300 text-xs font-medium text-slate-600 hover:bg-slate-50"
+              className="min-h-[44px] px-3 rounded-lg border border-ink-300 text-xs font-medium text-ink-600 hover:bg-ink-50"
               aria-label={
                 item.is_paid ? "Mark as unpaid" : "Mark as paid"
               }
@@ -103,7 +103,7 @@ export function LineItemRow({
                 onClick={onAddPayment}
                 aria-label="Schedule payment"
                 title="Schedule payment"
-                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-slate-300 text-slate-500 hover:bg-slate-50"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-ink-300 text-ink-500 hover:bg-ink-50"
               >
                 <CalendarPlus className="w-4 h-4" />
               </button>
@@ -117,10 +117,10 @@ export function LineItemRow({
         <ul className="mt-2 ml-1 space-y-1.5">
           {item.payments.map((p) => (
             <li key={p.id} className="flex items-center gap-2 text-xs">
-              <span className="text-slate-500">
+              <span className="text-ink-500">
                 {new Date(p.due_date + "T00:00:00").toLocaleDateString()}
               </span>
-              <span className="font-semibold text-slate-600">
+              <span className="font-semibold text-ink-600">
                 {formatMoney(p.amount)}
               </span>
               <Badge

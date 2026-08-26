@@ -4,18 +4,41 @@
 
 ---
 
-## 1. Color Palette
+## 0. Official Brand System (v2 — Bordeaux/Ivory/Ink)
+
+> Source: VOWLY Final Logo System PRD + taste-skill discipline. This supersedes the v1 rose/slate/gold palette.
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| Primary (Rose) | `#C0474C` | CTAs, active states, primary buttons, links |
-| Slate | `#2D3748` | Body text, headings, dark backgrounds |
-| Light Gray | `#F3F4F6` | Page backgrounds, card borders, subtle dividers |
-| White | `#FFFFFF` | Card backgrounds, modal surfaces |
-| Gold Accent | `#B7893F` | Premium badges, highlights, star ratings |
-| Success Green | `#16A34A` | Success toasts, positive indicators |
-| Error Red | `#DC2626` | Error toasts, over-budget warnings |
-| Warning Yellow | `#EAB308` | Warning toasts, conflict indicators |
+| Bordeaux | `#6E2F3A` | Primary accent: CTAs, active nav, links, focus rings, premium badges |
+| Ivory (Paper) | `#FAF8F5` | Page background (`bg-paper`), light surfaces |
+| Ink | `#1C1B1A` | Text (`ink-700/800/900`), dark sidebar bg (`ink-900`), REVERSE logo tone |
+| Success Green | `#3a7a4b` family (`success-*`) | Success toasts, attending, paid |
+| Error Red | `#a83a32` family (`error-*`) | Errors, over-budget, overdue |
+| Warning Yellow | `#8a6420` family (`warning-*`) | Warnings, conflict indicators |
+
+### Rules (non-negotiable)
+
+- **One accent**: Bordeaux is the ONLY brand accent. No gold, no second accent color.
+- **Warm neutrals only**: use `ink-*` / `stone-*` ramps. Never mix cool grays (slate/gray) into the UI.
+- **Logo system**: `VowlySymbol` / `VowlyLogo` components in `src/components/brand/`. Never draw hearts, rings, or wedding icons. Never stretch, gradient, or shadow the logo. Clear space = 2x dot width. Min sizes: symbol 20px, wordmark 72px wide.
+- **Logo variants**: brand (bordeaux+ink), ivory tone for dark surfaces (REVERSE), bordeaux tile for app icon.
+- **Signature animation**: dots appear → arms draw → converge (600-900ms), gated behind `prefers-reduced-motion`. Used on auth/invite surfaces only.
+- **"Two paths" motif**: `ConvergingPaths` component for auth backgrounds at ≤10% opacity.
+- **No em-dashes in UI copy.** No pure black (#000) or pure white backgrounds.
+- **Shape lock**: soft radius family (rounded-lg / rounded-xl, cards 14px). No mixed sharp/pill systems.
+- **Tactile feedback**: buttons use `active:scale-[0.98]`-style push states where interactive.
+
+---
+
+## 1. Legacy Palette Reference (pre-rebrand, do not use in new code)
+
+| Token | Hex | Status |
+|-------|-----|--------|
+| ~~Primary (Rose)~~ | ~~`#C0474C`~~ | Replaced by Bordeaux `#6E2F3A` |
+| ~~Slate~~ | ~~`#2D3748`~~ | Replaced by Ink ramp |
+| ~~Light Gray~~ | ~~`#F3F4F6`~~ | Replaced by Ivory `#FAF8F5` |
+| ~~Gold Accent~~ | ~~`#B7893F`~~ | Removed; premium = Bordeaux |
 
 ### Tailwind Config
 

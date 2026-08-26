@@ -53,10 +53,10 @@ export function LoginForm({ next = "/dashboard" }: { next?: string }) {
         <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
           <MailCheck className="w-7 h-7 text-green-600" />
         </div>
-        <h2 className="font-heading text-lg font-semibold text-slate-700 mb-2">
+        <h2 className="font-heading text-lg font-semibold text-ink-700 mb-2">
           Check your email
         </h2>
-        <p className="text-sm text-slate-500 mb-6">
+        <p className="text-sm text-ink-500 mb-6">
           We sent a sign-in link to{" "}
           <span className="font-semibold">{getValues("email")}</span>. Click the
           link to log in.

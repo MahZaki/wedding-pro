@@ -1,44 +1,106 @@
 @import "tailwindcss";
 
+/*
+  VOWLY — Official brand tokens
+  Palette: Bordeaux / Ivory / Ink (see branding PRD §10, §20)
+  Shape lock: soft system — buttons/inputs/cards share one radius family.
+*/
+
 @theme {
-  /* Brand palette — see docs/ui-rules.md */
-  --color-rose-50: #fef2f2;
-  --color-rose-100: #fde8e8;
-  --color-rose-200: #f9d6d7;
-  --color-rose-300: #f0afb1;
-  --color-rose-400: #dc888b;
-  --color-rose-500: #c0474c;
-  --color-rose-600: #a33b40;
-  --color-rose-700: #8a3136;
-  --color-rose-800: #6e282c;
-  --color-rose-900: #572024;
+  /* ── Vowly Bordeaux (primary accent) ───────────────────── */
+  --color-bordeaux-50: #f9f1f2;
+  --color-bordeaux-100: #ebd6da;
+  --color-bordeaux-200: #cba3ab;
+  --color-bordeaux-300: #a96874;
+  --color-bordeaux-400: #8a4653;
+  --color-bordeaux-500: #6e2f3a;
+  --color-bordeaux-600: #5c2530;
+  --color-bordeaux-700: #4c1e27;
+  --color-bordeaux-800: #3d171f;
+  --color-bordeaux-900: #2e1116;
 
-  --color-slate-50: #f7fafc;
-  --color-slate-100: #edf2f7;
-  --color-slate-200: #d9e2ec;
-  --color-slate-300: #cbd5e0;
-  --color-slate-400: #a0aec0;
-  --color-slate-500: #718096;
-  --color-slate-600: #4a5568;
-  --color-slate-700: #2d3748;
-  --color-slate-800: #1a202c;
-  --color-slate-900: #171923;
+  /* ── Vowly Ink (warm neutral ramp) ─────────────────────── */
+  --color-ink-50: #f7f4f0;
+  --color-ink-100: #efeae4;
+  --color-ink-200: #ded7ce;
+  --color-ink-300: #c9bfb4;
+  --color-ink-400: #a79c90;
+  --color-ink-500: #8a7f73;
+  --color-ink-600: #5f574e;
+  --color-ink-700: #453f39;
+  --color-ink-800: #2e2a26;
+  --color-ink-900: #1c1b1a;
 
-  --color-gold-50: #fdf8ed;
-  --color-gold-100: #f9edcf;
-  --color-gold-200: #f0dba4;
-  --color-gold-300: #e4c477;
-  --color-gold-400: #cea755;
-  --color-gold-500: #b7893f;
-  --color-gold-600: #9a7235;
-  --color-gold-700: #7d5c2b;
+  /* ── Vowly Ivory surfaces ──────────────────────────────── */
+  --color-paper: #faf8f5;
+
+  /* Semantic (warm-tuned) */
+  --color-success-50: #f0f7f1;
+  --color-success-100: #dcefe0;
+  --color-success-600: #3a7a4b;
+  --color-success-700: #2e6044;
+  --color-error-50: #fbf1f1;
+  --color-error-100: #f6dddd;
+  --color-error-600: #a83a32;
+  --color-error-700: #8c2f28;
+  --color-warning-50: #faf5ea;
+  --color-warning-100: #f3e8cf;
+  --color-warning-700: #8a6420;
 
   --font-heading: Georgia, "Times New Roman", serif;
   --font-body: Calibri, "Segoe UI", system-ui, sans-serif;
+
+  --radius-card: 14px;
 }
 
 body {
-  background-color: var(--color-slate-50);
-  color: var(--color-slate-700);
+  background-color: var(--color-paper);
+  color: var(--color-ink-800);
   font-family: var(--font-body);
+}
+
+::selection {
+  background-color: var(--color-bordeaux-500);
+  color: #ffffff;
+}
+
+/* Signature logo animation — calm, precise, reduced-motion safe.
+   Brand PRD §16: dots appear, strokes draw, converge. 600-900ms. */
+@media (prefers-reduced-motion: no-preference) {
+  .vowly-draw .vowly-arm-l,
+  .vowly-draw .vowly-arm-r {
+    stroke-dasharray: 120;
+    stroke-dashoffset: 120;
+    animation: vowly-stroke 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .vowly-draw .vowly-arm-r {
+    animation-delay: 0.12s;
+  }
+  .vowly-draw .vowly-dot {
+    opacity: 0;
+    animation: vowly-dot 0.35s ease-out forwards;
+  }
+  .vowly-draw .vowly-dot-l {
+    animation-delay: 0.55s;
+  }
+  .vowly-draw .vowly-dot-r {
+    animation-delay: 0.65s;
+  }
+}
+
+@keyframes vowly-stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes vowly-dot {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

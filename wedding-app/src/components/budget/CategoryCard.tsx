@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { ChevronDown, Plus } from "lucide-react";
 import { cn, formatMoney } from "@/lib/utils";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -45,47 +44,46 @@ export function CategoryCard({
   const [showAddPayment, setShowAddPayment] = useState(false);
   const [paymentItemId, setPaymentItemId] = useState<string | null>(null);
   const { toast } = useToast();
-
   const estimated = items.reduce((a, i) => a + i.estimated_cost, 0);
   const actual = items.reduce((a, i) => a + (i.actual_cost ?? 0), 0);
   const variance = actual - estimated;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-lg border border-stone-200 overflow-hidden">
       {/* Header */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-4 lg:px-5 py-4 min-h-[56px] hover:bg-slate-50"
+        className="w-full flex items-center justify-between px-4 lg:px-5 py-4 min-h-[56px] hover:bg-ink-50"
       >
         <span className="flex items-center gap-3">
           <ChevronDown
             className={cn(
-              "w-4 h-4 text-slate-400 transition-transform",
+              "w-4 h-4 text-ink-400 transition-transform",
               !open && "-rotate-90"
             )}
           />
-          <span className="font-heading font-semibold text-slate-700 text-left">
+          <span className="font-heading font-semibold text-ink-700 text-left">
             {category.name}
           </span>
         </span>
         <span className="text-right">
-          <span className="block text-sm font-semibold text-slate-700">
+          <span className="block text-sm font-semibold text-ink-700">
             {formatMoney(category.allocated_amount)}
           </span>
-          <span className="block text-xs text-slate-400">allocated</span>
+          <span className="block text-xs text-ink-400">allocated</span>
         </span>
       </button>
 
       {open && (
-        <div className="border-t border-gray-100 px-4 lg:px-5 pb-4 pt-2">
+        <div className="border-t border-stone-100 px-4 lg:px-5 pb-4 pt-2">
           <div className="flex gap-4 text-xs mb-3">
-            <span className="text-slate-400">
+            <span className="text-ink-400">
               Estimated:{" "}
-              <span className="font-semibold text-slate-600">
+              <span className="font-semibold text-ink-600">
                 {formatMoney(estimated)}
               </span>
             </span>
-            <span className="text-slate-400">
+            <span className="text-ink-400">
               Actual:{" "}
               <span
                 className={cn(
@@ -99,11 +97,11 @@ export function CategoryCard({
           </div>
 
           {items.length === 0 ? (
-            <p className="text-sm text-slate-400 py-2">
+            <p className="text-sm text-ink-400 py-2">
               No line items in this category.
             </p>
           ) : (
-            <ul className="divide-y divide-gray-100 -mx-1">
+            <ul className="divide-y divide-stone-100 -mx-1">
               {items.map((item) => (
                 <LineItemRow
                   key={item.id}
@@ -121,7 +119,7 @@ export function CategoryCard({
           {!readOnly && (
             <button
               onClick={() => setShowAddItem(true)}
-              className="mt-3 flex items-center gap-1.5 text-sm text-rose-600 hover:text-rose-700 min-h-[44px]"
+              className="mt-3 flex items-center gap-1.5 text-sm text-bordeaux-600 hover:text-bordeaux-700 min-h-[44px]"
             >
               <Plus className="w-4 h-4" /> Add line item
             </button>

@@ -15,10 +15,10 @@ export default async function LoginPage({
 
   return (
     <div>
-      <h1 className="font-heading text-xl font-bold text-slate-700 mb-1">
+      <h1 className="font-heading text-xl font-bold text-ink-700 mb-1">
         Welcome back
       </h1>
-      <p className="text-sm text-slate-500 mb-6">
+      <p className="text-sm text-ink-500 mb-6">
         Enter your email and we&apos;ll send you a magic link to sign in.
       </p>
       {params.error === "auth_failed" && (

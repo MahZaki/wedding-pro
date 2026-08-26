@@ -85,7 +85,7 @@ export function GuestsView({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-700">
+        <h1 className="font-heading text-2xl lg:text-3xl font-bold text-ink-700">
           Guests
         </h1>
         {!readOnly && (
@@ -126,18 +126,18 @@ export function GuestsView({
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -tranink-y-1/2 w-4 h-4 text-ink-400" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search guests…"
-            className="w-full min-h-[44px] pl-10 pr-3 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="w-full min-h-[44px] pl-10 pr-3 border border-ink-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux-500"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="min-h-[44px] px-3 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+          className="min-h-[44px] px-3 border border-ink-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux-500"
           aria-label="Filter by RSVP status"
         >
           <option value="all">All statuses</option>
@@ -149,7 +149,7 @@ export function GuestsView({
 
       {/* Table */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200">
+        <div className="bg-white rounded-lg border border-stone-200">
           {guests.length === 0 ? (
             <EmptyState
               icon={Users}
@@ -175,19 +175,19 @@ export function GuestsView({
           )}
         </div>
       ) : (
-        <ul className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+        <ul className="bg-white rounded-lg border border-stone-200 divide-y divide-stone-100">
           {filtered.map((g) => (
             <li key={g.id} className="flex items-center gap-3 px-4 py-3">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-slate-700 truncate">
+                <p className="text-sm font-medium text-ink-700 truncate">
                   {g.first_name} {g.last_name}
                   {g.side && g.side !== "both" && (
-                    <span className="ml-2 text-xs text-slate-400 capitalize">
+                    <span className="ml-2 text-xs text-ink-400 capitalize">
                       ({g.side}&apos;s side)
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-slate-400 truncate">{g.email}</p>
+                <p className="text-xs text-ink-400 truncate">{g.email}</p>
               </div>
               <Badge
                 variant={
@@ -217,14 +217,14 @@ export function GuestsView({
                     disabled={!g.token}
                     aria-label={`Copy RSVP link for ${g.first_name}`}
                     title="Copy RSVP link"
-                    className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 disabled:opacity-30"
+                    className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-ink-400 hover:text-ink-600 hover:bg-ink-100 disabled:opacity-30"
                   >
                     <Copy className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setEditing(g)}
                     aria-label={`Edit ${g.first_name}`}
-                    className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                    className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-ink-400 hover:text-ink-600 hover:bg-ink-100"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
@@ -240,7 +240,7 @@ export function GuestsView({
                       })();
                     }}
                     aria-label={`Delete ${g.first_name}`}
-                    className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                    className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-ink-400 hover:text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -276,18 +276,18 @@ function StatCard({
   tone: "neutral" | "success" | "danger" | "pending";
 }) {
   const tones = {
-    neutral: "text-slate-700",
+    neutral: "text-ink-700",
     success: "text-green-600",
     danger: "text-red-500",
     pending: "text-yellow-600",
   };
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-3 lg:p-4">
+    <div className="bg-white rounded-lg border border-stone-200 p-3 lg:p-4">
       <Icon className={cn("w-4 h-4 mb-1.5", tones[tone])} />
       <p className={cn("font-heading text-xl font-bold", tones[tone])}>
         {value}
       </p>
-      <p className="text-xs text-slate-400">{label}</p>
+      <p className="text-xs text-ink-400">{label}</p>
     </div>
   );
 }
@@ -470,14 +470,14 @@ function CsvImportModal({
 
   return (
     <Modal open={open} onClose={onClose} title="Import guests from CSV">
-      <p className="text-sm text-slate-500 mb-4">
+      <p className="text-sm text-ink-500 mb-4">
         Required columns:{" "}
-        <code className="text-xs bg-slate-100 px-1 py-0.5 rounded">
+        <code className="text-xs bg-ink-100 px-1 py-0.5 rounded">
           first_name, last_name, email, phone, group
         </code>
       </p>
 
-      <label className="block border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:border-rose-400 transition-colors min-h-[44px]">
+      <label className="block border-2 border-dashed border-ink-300 rounded-lg p-6 text-center cursor-pointer hover:border-bordeaux-400 transition-colors min-h-[44px]">
         <input
           type="file"
           accept=".csv,text/csv"
@@ -487,8 +487,8 @@ function CsvImportModal({
             if (f) parseFile(f);
           }}
         />
-        <Upload className="w-6 h-6 mx-auto text-slate-400 mb-2" />
-        <span className="text-sm text-slate-500">
+        <Upload className="w-6 h-6 mx-auto text-ink-400 mb-2" />
+        <span className="text-sm text-ink-500">
           {fileName ? fileName : "Choose a .csv file"}
         </span>
       </label>
@@ -502,12 +502,12 @@ function CsvImportModal({
               <span className="text-red-500"> · {invalidCount} invalid</span>
             )}
           </p>
-          <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100">
+          <div className="max-h-48 overflow-y-auto border border-stone-200 rounded-lg divide-y divide-stone-100">
             {rows.slice(0, 50).map((r, i) => (
-              <p key={i} className="text-xs text-slate-600 px-3 py-2">
+              <p key={i} className="text-xs text-ink-600 px-3 py-2">
                 {r.first_name} {r.last_name}
                 {r.email && (
-                  <span className="text-slate-400"> · {r.email}</span>
+                  <span className="text-ink-400"> · {r.email}</span>
                 )}
               </p>
             ))}
@@ -523,7 +523,7 @@ function CsvImportModal({
           <p className="font-semibold text-green-600">
             Imported {result.imported} guests
           </p>
-          <p className="text-slate-400">{result.duplicates} duplicates skipped</p>
+          <p className="text-ink-400">{result.duplicates} duplicates skipped</p>
         </div>
       )}
     </Modal>

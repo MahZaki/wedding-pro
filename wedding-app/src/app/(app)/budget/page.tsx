@@ -63,12 +63,12 @@ export default async function BudgetPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-700">
+      <h1 className="font-heading text-2xl lg:text-3xl font-bold text-ink-700">
         Budget
       </h1>
 
       {/* Summary */}
-      <div className="bg-white rounded-lg border border-gray-200 p-5 lg:p-6">
+      <div className="bg-white rounded-lg border border-stone-200 p-5 lg:p-6">
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <BudgetRing
             spent={totalActual}
@@ -77,23 +77,23 @@ export default async function BudgetPage() {
           />
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-4 flex-1 w-full">
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">
+              <p className="text-xs font-medium text-ink-400 uppercase">
                 Target budget
               </p>
-              <p className="font-heading text-xl font-bold text-slate-700">
+              <p className="font-heading text-xl font-bold text-ink-700">
                 {formatMoney(Number(wedding.target_budget))}
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">
+              <p className="text-xs font-medium text-ink-400 uppercase">
                 Allocated
               </p>
-              <p className="font-heading text-xl font-bold text-slate-700">
+              <p className="font-heading text-xl font-bold text-ink-700">
                 {formatMoney(totalAllocated)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 uppercase">
+              <p className="text-xs font-medium text-ink-400 uppercase">
                 Actual spend
               </p>
               <p
@@ -113,7 +113,7 @@ export default async function BudgetPage() {
       {/* Categories */}
       <div className="space-y-4">
         {categories.length === 0 ? (
-          <p className="bg-white border border-gray-200 rounded-lg p-6 text-center text-sm text-slate-400">
+          <p className="bg-white border border-stone-200 rounded-lg p-6 text-center text-sm text-ink-400">
             No budget categories yet.
           </p>
         ) : (

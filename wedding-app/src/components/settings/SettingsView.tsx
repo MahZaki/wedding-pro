@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { Copy, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -35,10 +35,13 @@ export function SettingsView({
   const [guests, setGuests] = useState(String(wedding.guest_count_estimate));
   const [region, setRegion] = useState(wedding.region_tier);
   const [isPending, startTransition] = useTransition();
-  const [origin, setOrigin] = useState(appUrl);
+  const originInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    if (typeof window !== "undefined") setOrigin(window.location.origin);
-  }, []);
+    // Ref write (not setState): no re-render, lint-safe mount update.
+    if (originInputRef.current) {
+      originInputRef.current.value = `${window.location.origin}/invite/${wedding.id}`;
+    }
+  }, [wedding.id]);
   const { toast } = useToast();
 
   const canEdit = role === "owner" || role === "planner";
@@ -59,21 +62,26 @@ export function SettingsView({
   }
 
   function copyInvite() {
+    const origin =
+      originInputRef.current?.value ??
+      (typeof window !== "undefined"
+        ? `${window.location.origin}/invite/${wedding.id}`
+        : `${appUrl}/invite/${wedding.id}`);
     void navigator.clipboard
-      .writeText(`${origin}/invite/${wedding.id}`)
+      .writeText(origin)
       .then(() => toast("success", "Invite link copied"))
       .catch(() => toast("error", "Could not copy link"));
   }
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-700">
+      <h1 className="font-heading text-2xl lg:text-3xl font-bold text-ink-700">
         Settings
       </h1>
 
       {/* Wedding settings */}
-      <section className="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-        <h2 className="font-heading font-semibold text-slate-700 mb-4">
+      <section className="bg-white rounded-lg border border-stone-200 p-4 lg:p-6">
+        <h2 className="font-heading font-semibold text-ink-700 mb-4">
           Wedding details
         </h2>
         <form onSubmit={save} className="space-y-4">
@@ -130,23 +138,23 @@ export function SettingsView({
       </section>
 
       {/* Members + invite */}
-      <section className="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-        <h2 className="font-heading font-semibold text-slate-700 mb-1 flex items-center gap-2">
+      <section className="bg-white rounded-lg border border-stone-200 p-4 lg:p-6">
+        <h2 className="font-heading font-semibold text-ink-700 mb-1 flex items-center gap-2">
           Collaborators
           {members.length >= 2 && <Badge variant="premium">Free limit</Badge>}
         </h2>
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-ink-400 mb-4">
           Free workspaces include you plus one partner. More collaborators need
           a premium license.
         </p>
 
-        <ul className="divide-y divide-gray-100 border border-gray-100 rounded-lg mb-4">
+        <ul className="divide-y divide-stone-100 border border-stone-100 rounded-lg mb-4">
           {members.map((m) => (
             <li
               key={`${m.email}-${m.role}`}
               className="flex items-center justify-between px-3 py-2.5"
             >
-              <span className="text-sm text-slate-700 truncate">{m.email}</span>
+              <span className="text-sm text-ink-700 truncate">{m.email}</span>
               <Badge variant={m.role === "owner" ? "success" : "neutral"}>
                 {m.role}
               </Badge>
@@ -156,15 +164,16 @@ export function SettingsView({
 
         {canEdit && (
           <div>
-            <p className="text-sm font-medium text-slate-700 mb-1.5 flex items-center gap-1.5">
+            <p className="text-sm font-medium text-ink-700 mb-1.5 flex items-center gap-1.5">
               <UserPlus className="w-4 h-4" /> Partner invite link
             </p>
             <div className="flex gap-2">
               <input
+                ref={originInputRef}
                 readOnly
-                value={`${origin}/invite/${wedding.id}`}
+                defaultValue={`${appUrl}/invite/${wedding.id}`}
                 onFocus={(e) => e.target.select()}
-                className="flex-1 min-h-[44px] px-3 border border-slate-300 rounded-lg text-xs bg-slate-50 text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                className="flex-1 min-h-[44px] px-3 border border-ink-300 rounded-lg text-xs bg-ink-50 text-ink-500 focus:outline-none focus:ring-2 focus:ring-bordeaux-500"
                 aria-label="Invite link"
               />
               <Button variant="secondary" onClick={copyInvite}>
@@ -176,11 +185,11 @@ export function SettingsView({
       </section>
 
       {/* Account */}
-      <section className="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-        <h2 className="font-heading font-semibold text-slate-700 mb-2">
+      <section className="bg-white rounded-lg border border-stone-200 p-4 lg:p-6">
+        <h2 className="font-heading font-semibold text-ink-700 mb-2">
           Account
         </h2>
-        <p className="text-xs text-slate-400 capitalize">
+        <p className="text-xs text-ink-400 capitalize">
           Your role: {role}
         </p>
       </section>

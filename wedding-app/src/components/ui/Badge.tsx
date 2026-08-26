@@ -12,8 +12,8 @@ const variantStyles: Record<BadgeVariant, string> = {
   success: "bg-green-100 text-green-700",
   pending: "bg-yellow-100 text-yellow-700",
   danger: "bg-red-100 text-red-700",
-  premium: "bg-gold-500 text-white",
-  neutral: "bg-slate-100 text-slate-600",
+  premium: "bg-bordeaux-500 text-white",
+  neutral: "bg-ink-100 text-ink-600",
 };
 
 export function Badge({

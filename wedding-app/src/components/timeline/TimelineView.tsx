@@ -75,14 +75,14 @@ export function TimelineView({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-700">
+      <h1 className="font-heading text-2xl lg:text-3xl font-bold text-ink-700">
         Timeline
       </h1>
 
       {!readOnly && (
-        <section className="bg-white rounded-lg border border-gray-200 p-4 lg:p-5">
-          <h2 className="font-heading font-semibold text-slate-700 mb-3 flex items-center gap-2">
-            <Wand2 className="w-4 h-4 text-rose-500" /> Generate from anchors
+        <section className="bg-white rounded-lg border border-stone-200 p-4 lg:p-5">
+          <h2 className="font-heading font-semibold text-ink-700 mb-3 flex items-center gap-2">
+            <Wand2 className="w-4 h-4 text-bordeaux-500" /> Generate from anchors
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             {ANCHOR_FIELDS.map(({ key, label }) => (
@@ -100,7 +100,7 @@ export function TimelineView({
           <Button onClick={generate} loading={isPending}>
             Generate full day schedule
           </Button>
-          <p className="text-xs text-slate-400 mt-2">
+          <p className="text-xs text-ink-400 mt-2">
             Regenerates all 15 blocks. Ceremony and venue end are hard anchors —
             every other block shifts with them.
           </p>
@@ -111,7 +111,7 @@ export function TimelineView({
       <div className="flex items-center gap-2 flex-wrap">
         <button
           onClick={() => setShowRoles((s) => !s)}
-          className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 min-h-[44px]"
+          className="flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-700 min-h-[44px]"
         >
           <Users className="w-4 h-4" /> Filter by role
         </button>
@@ -122,8 +122,8 @@ export function TimelineView({
               onClick={() => setRoleFilter((r) => (r === role ? null : role))}
               className={`px-3 min-h-[36px] rounded-full text-xs font-medium border transition-colors ${
                 roleFilter === role
-                  ? "bg-rose-500 border-rose-500 text-white"
-                  : "border-slate-300 text-slate-600 hover:bg-slate-50"
+                  ? "bg-bordeaux-500 border-bordeaux-500 text-white"
+                  : "border-ink-300 text-ink-600 hover:bg-ink-50"
               }`}
             >
               {role}
@@ -132,7 +132,7 @@ export function TimelineView({
         {roleFilter && (
           <button
             onClick={() => setRoleFilter(null)}
-            className="text-xs text-rose-600 hover:underline"
+            className="text-xs text-bordeaux-600 hover:underline"
           >
             Clear
           </button>
@@ -141,7 +141,7 @@ export function TimelineView({
 
       {/* Timeline */}
       {visible.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200">
+        <div className="bg-white rounded-lg border border-stone-200">
           <EmptyState
             icon={Clock}
             title="No timeline yet"
@@ -149,24 +149,24 @@ export function TimelineView({
           />
         </div>
       ) : (
-        <ol className="relative border-l-2 border-slate-200 ml-3 space-y-0">
+        <ol className="relative border-l-2 border-ink-200 ml-3 space-y-0">
           {visible.map((item) => (
             <li key={item.id} className="ml-6 pb-5 relative">
               <span
                 className={`absolute -left-[31px] top-1 w-3 h-3 rounded-full ${
-                  item.is_anchor ? "bg-gold-500 ring-4 ring-gold-100" : "bg-slate-300"
+                  item.is_anchor ? "bg-bordeaux-500 ring-4 ring-bordeaux-100" : "bg-ink-300"
                 }`}
               />
-              <div className="bg-white rounded-lg border border-gray-200 p-3 lg:p-4 group">
+              <div className="bg-white rounded-lg border border-stone-200 p-3 lg:p-4 group">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                    <p className="flex items-center gap-2 text-sm font-semibold text-ink-700">
                       {item.is_anchor && (
-                        <Star className="w-3.5 h-3.5 text-gold-500 fill-gold-500 flex-shrink-0" />
+                        <Star className="w-3.5 h-3.5 text-bordeaux-500 fill-bordeaux-500 flex-shrink-0" />
                       )}
                       <span className="truncate">{item.title}</span>
                     </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-ink-400 mt-0.5">
                       {formatTime(item.start_time)}
                       {item.end_time && ` – ${formatTime(item.end_time)}`}
                     </p>
@@ -191,7 +191,7 @@ export function TimelineView({
                         })
                       }
                       aria-label={`Delete ${item.title}`}
-                      className="min-w-[40px] min-h-[40px] hidden sm:flex items-center justify-center rounded-lg text-slate-300 hover:text-red-600 hover:bg-red-50"
+                      className="min-w-[40px] min-h-[40px] hidden sm:flex items-center justify-center rounded-lg text-ink-300 hover:text-red-600 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

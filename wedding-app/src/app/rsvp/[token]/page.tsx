@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { RsvpForm } from "@/components/rsvp/RsvpForm";
-import { Heart } from "lucide-react";
+import { VowlySymbol } from "@/components/brand/VowlyLogo";
+
 
 export const metadata = { title: "RSVP" };
 export const dynamic = "force-dynamic";
@@ -42,28 +43,26 @@ export default async function RsvpPage({
     .maybeSingle();
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-paper flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-9 h-9 rounded-full bg-rose-500 flex items-center justify-center">
-            <Heart className="w-4 h-4 text-white fill-white" />
-          </div>
-          <span className="font-heading text-xl font-bold text-slate-700">
+        <div className="flex items-center justify-center gap-2.5 mb-6">
+          <VowlySymbol size={30} />
+          <span className="font-heading text-xl font-bold text-ink-700">
             {(guest.weddings as unknown as { title: string } | null)?.title ??
               "Wedding"}
           </span>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h1 className="font-heading text-xl font-bold text-slate-700 text-center">
+        <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6">
+          <h1 className="font-heading text-xl font-bold text-ink-700 text-center">
             Hi, {guest.first_name}!
           </h1>
-          <p className="text-sm text-slate-500 text-center mt-1 mb-6">
+          <p className="text-sm text-ink-500 text-center mt-1 mb-6">
             Will you be joining us?
             {event && (
               <>
                 <br />
-                <span className="text-slate-400 text-xs">
+                <span className="text-ink-400 text-xs">
                   {event.name}
                   {event.date &&
                     ` · ${new Date(event.date + "T00:00:00").toLocaleDateString(
@@ -86,7 +85,7 @@ export default async function RsvpPage({
           />
         </div>
 
-        <p className="mt-4 text-xs text-slate-400 text-center">
+        <p className="mt-4 text-xs text-ink-400 text-center">
           No account needed. Your response is private.
         </p>
       </div>

@@ -4,6 +4,15 @@ import { requireWedding } from "@/lib/wedding";
 import { Wallet, Users, CreditCard } from "lucide-react";
 import { formatMoney, cn } from "@/lib/utils";
 
+/** Today and N-days-ahead as YYYY-MM-DD (module scope: computed once per request). */
+function paymentWindow(days = 30): { from: string; to: string } {
+  const from = new Date().toISOString().split("T")[0];
+  const to = new Date(Date.now() + days * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0];
+  return { from, to };
+}
+
 export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
@@ -41,12 +50,7 @@ export default async function DashboardPage() {
   }
 
   // Upcoming payments in next 30 days
-  // eslint-disable-next-line react-hooks/purity -- server component, computed once per request
-  const today = new Date().toISOString().split("T")[0];
-  // eslint-disable-next-line react-hooks/purity -- server component, computed once per request
-  const in30 = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split("T")[0];
+  const { from: today, to: in30 } = paymentWindow();
 
   const { data: payments } = await supabase
     .from("payment_schedules")
@@ -63,10 +67,10 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-heading text-2xl lg:text-3xl font-bold text-slate-700">
+        <h1 className="font-heading text-2xl lg:text-3xl font-bold text-ink-700">
           Dashboard
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-ink-500">
           {wedding.title}
           {wedding.wedding_date
             ? ` · ${new Date(wedding.wedding_date + "T00:00:00").toLocaleDateString(
@@ -81,18 +85,18 @@ export default async function DashboardPage() {
         {/* Budget card */}
         <Link
           href="/budget"
-          className="bg-white rounded-lg border border-gray-200 p-5 hover:border-rose-300 transition-colors"
+          className="bg-white rounded-lg border border-stone-200 p-5 hover:border-bordeaux-300 transition-colors"
         >
-          <div className="flex items-center gap-2 text-slate-500 mb-3">
+          <div className="flex items-center gap-2 text-ink-500 mb-3">
             <Wallet className="w-4 h-4" />
             <span className="text-xs font-semibold uppercase tracking-wide">
               Budget
             </span>
           </div>
-          <p className="font-heading text-2xl font-bold text-slate-700">
+          <p className="font-heading text-2xl font-bold text-ink-700">
             {formatMoney(allocated)}
           </p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-ink-400 mt-1">
             of {formatMoney(Number(wedding.target_budget))} planned
           </p>
         </Link>
@@ -100,9 +104,9 @@ export default async function DashboardPage() {
         {/* Guests card */}
         <Link
           href="/guests"
-          className="bg-white rounded-lg border border-gray-200 p-5 hover:border-rose-300 transition-colors"
+          className="bg-white rounded-lg border border-stone-200 p-5 hover:border-bordeaux-300 transition-colors"
         >
-          <div className="flex items-center gap-2 text-slate-500 mb-3">
+          <div className="flex items-center gap-2 text-ink-500 mb-3">
             <Users className="w-4 h-4" />
             <span className="text-xs font-semibold uppercase tracking-wide">
               Guests
@@ -115,7 +119,7 @@ export default async function DashboardPage() {
             <span className="text-xs text-red-500">{declined} declined</span>
             <span className="text-xs text-yellow-600">{pending} pending</span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-ink-400 mt-1">
             {(guests?.length ?? 0)} invited
           </p>
         </Link>
@@ -123,28 +127,28 @@ export default async function DashboardPage() {
         {/* Payments card */}
         <Link
           href="/budget"
-          className="bg-white rounded-lg border border-gray-200 p-5 hover:border-rose-300 transition-colors"
+          className="bg-white rounded-lg border border-stone-200 p-5 hover:border-bordeaux-300 transition-colors"
         >
-          <div className="flex items-center gap-2 text-slate-500 mb-3">
+          <div className="flex items-center gap-2 text-ink-500 mb-3">
             <CreditCard className="w-4 h-4" />
             <span className="text-xs font-semibold uppercase tracking-wide">
               Due in 30 days
             </span>
           </div>
-          <p className="font-heading text-2xl font-bold text-slate-700">
+          <p className="font-heading text-2xl font-bold text-ink-700">
             {payments?.length ?? 0} payments
           </p>
-          <p className="text-xs text-slate-400 mt-1">upcoming</p>
+          <p className="text-xs text-ink-400 mt-1">upcoming</p>
         </Link>
       </div>
 
       {/* Upcoming payments list */}
       <section>
-        <h2 className="font-heading text-lg font-semibold text-slate-700 mb-3">
+        <h2 className="font-heading text-lg font-semibold text-ink-700 mb-3">
           Upcoming payments
         </h2>
         {payments && payments.length > 0 ? (
-          <ul className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+          <ul className="bg-white rounded-lg border border-stone-200 divide-y divide-stone-100">
             {payments.map((p) => {
               const item = p.budget_items as unknown as {
                 name?: string;
@@ -157,16 +161,16 @@ export default async function DashboardPage() {
                   className="flex items-center justify-between px-4 py-3"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-700 truncate">
+                    <p className="text-sm font-medium text-ink-700 truncate">
                       {item?.name ?? "Payment"}
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-ink-400">
                       {item?.budget_categories?.name} · due{" "}
                       {new Date(p.due_date + "T00:00:00").toLocaleDateString()}
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-3">
-                    <p className="text-sm font-semibold text-slate-700">
+                    <p className="text-sm font-semibold text-ink-700">
                       {formatMoney(Number(p.amount))}
                     </p>
                     <span
@@ -185,7 +189,7 @@ export default async function DashboardPage() {
             })}
           </ul>
         ) : (
-          <p className="bg-white rounded-lg border border-gray-200 px-4 py-6 text-sm text-slate-400 text-center">
+          <p className="bg-white rounded-lg border border-stone-200 px-4 py-6 text-sm text-ink-400 text-center">
             No payments due in the next 30 days.
           </p>
         )}
