@@ -1,0 +1,17 @@
+{
+  "name": "Vowly — Wedding Planner",
+  "short_name": "Vowly",
+  "description": "Private wedding planning workspace: budget, guests, RSVPs, seating and timeline.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#F3F4F6",
+  "theme_color": "#C0474C",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
