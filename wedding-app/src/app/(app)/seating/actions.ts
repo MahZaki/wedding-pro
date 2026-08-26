@@ -28,8 +28,8 @@ export async function addTable(input: unknown): Promise<ActionResult> {
     Math.max(0, ...(existing ?? []).map((t) => t.table_number ?? 0)) + 1;
 
   const count = existing?.length ?? 0;
-  const col = count % 4;
-  const row = Math.floor(count / 4);
+  const col = count % 3;
+  const row = Math.floor(count / 3);
 
   const { data: created, error } = await supabase
     .from("tables")
@@ -38,8 +38,8 @@ export async function addTable(input: unknown): Promise<ActionResult> {
       table_number: nextNumber,
       shape: parsed.data.shape,
       capacity: parsed.data.capacity,
-      pos_x: 60 + col * 180,
-      pos_y: 40 + row * 150,
+      pos_x: 40 + col * 280,
+      pos_y: 40 + row * 220,
     })
     .select("id")
     .single();

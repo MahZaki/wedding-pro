@@ -7,10 +7,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type ToastType = "success" | "error" | "warning";
+type ToastType = "success" | "error" | "warning" | "info";
 
 interface ToastItem {
   id: number;
@@ -30,12 +30,14 @@ const styles: Record<ToastType, string> = {
   success: "bg-success-600",
   error: "bg-error-600",
   warning: "bg-warning-700",
+  info: "bg-ink-700",
 };
 
 const icons: Record<ToastType, React.ReactNode> = {
   success: <CheckCircle2 className="w-5 h-5 flex-shrink-0" />,
   error: <XCircle className="w-5 h-5 flex-shrink-0" />,
   warning: <AlertTriangle className="w-5 h-5 flex-shrink-0" />,
+  info: <Info className="w-5 h-5 flex-shrink-0" />,
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
