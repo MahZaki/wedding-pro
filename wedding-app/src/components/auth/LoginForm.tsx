@@ -50,8 +50,8 @@ export function LoginForm({ next = "/dashboard" }: { next?: string }) {
   if (sent) {
     return (
       <div className="text-center py-4">
-        <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
-          <MailCheck className="w-7 h-7 text-green-600" />
+        <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-success-100 flex items-center justify-center">
+          <MailCheck className="w-7 h-7 text-success-600" />
         </div>
         <h2 className="font-heading text-lg font-semibold text-ink-700 mb-2">
           Check your email

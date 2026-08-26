@@ -54,7 +54,7 @@ export function RsvpForm({
   if (done) {
     return (
       <div className="text-center py-4">
-        <CheckCircle2 className="w-12 h-12 mx-auto text-green-600 mb-3" />
+        <CheckCircle2 className="w-12 h-12 mx-auto text-success-600 mb-3" />
         <h2 className="font-heading text-lg font-semibold text-ink-700">
           Response received!
         </h2>
@@ -76,7 +76,7 @@ export function RsvpForm({
             aria-pressed={status === "attending"}
             className={`min-h-[48px] rounded-lg border text-sm font-semibold transition-colors ${
               status === "attending"
-                ? "bg-green-600 border-green-600 text-white"
+                ? "bg-success-600 border-success-600 text-white"
                 : "border-ink-300 text-ink-600 hover:bg-ink-50"
             }`}
           >
@@ -114,7 +114,7 @@ export function RsvpForm({
       )}
 
       {error && (
-        <p className="flex items-center gap-1.5 text-sm text-red-600">
+        <p className="flex items-center gap-1.5 text-sm text-error-600">
           <AlertCircle className="w-4 h-4" /> {error}
         </p>
       )}

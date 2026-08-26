@@ -191,7 +191,7 @@ export function TimelineView({
                         })
                       }
                       aria-label={`Delete ${item.title}`}
-                      className="min-w-[40px] min-h-[40px] hidden sm:flex items-center justify-center rounded-lg text-ink-300 hover:text-red-600 hover:bg-red-50"
+                      className="min-w-[40px] min-h-[40px] hidden sm:flex items-center justify-center rounded-lg text-ink-300 hover:text-error-600 hover:bg-error-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

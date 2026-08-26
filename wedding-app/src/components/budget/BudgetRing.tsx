@@ -29,7 +29,7 @@ export function BudgetRing({
         r={radius}
         fill="none"
         strokeWidth={12}
-        stroke="#EDF2F7"
+        stroke="#EFEAE4"
       />
       <circle
         cx={size / 2}
@@ -38,7 +38,7 @@ export function BudgetRing({
         fill="none"
         strokeWidth={12}
         strokeLinecap="round"
-        stroke={over ? "#DC2626" : "#C0474C"}
+        stroke={over ? "#A83A32" : "#6E2F3A"}
         strokeDasharray={circumference}
         strokeDashoffset={circumference * (1 - pct)}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}

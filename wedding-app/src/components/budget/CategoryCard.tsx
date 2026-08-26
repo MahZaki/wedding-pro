@@ -88,7 +88,7 @@ export function CategoryCard({
               <span
                 className={cn(
                   "font-semibold",
-                  variance > 0 ? "text-red-600" : "text-green-600"
+                  variance > 0 ? "text-error-600" : "text-success-600"
                 )}
               >
                 {formatMoney(actual)}

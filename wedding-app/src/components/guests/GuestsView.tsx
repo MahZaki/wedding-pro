@@ -240,7 +240,7 @@ export function GuestsView({
                       })();
                     }}
                     aria-label={`Delete ${g.first_name}`}
-                    className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-ink-400 hover:text-red-600 hover:bg-red-50"
+                    className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-ink-400 hover:text-error-600 hover:bg-error-50"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -277,9 +277,9 @@ function StatCard({
 }) {
   const tones = {
     neutral: "text-ink-700",
-    success: "text-green-600",
-    danger: "text-red-500",
-    pending: "text-yellow-600",
+    success: "text-success-600",
+    danger: "text-error-600",
+    pending: "text-warning-700",
   };
   return (
     <div className="bg-white rounded-lg border border-stone-200 p-3 lg:p-4">
@@ -496,10 +496,10 @@ function CsvImportModal({
       {rows.length > 0 && !result && (
         <div className="mt-4">
           <p className="text-sm mb-2">
-            <span className="font-semibold text-green-600">{rows.length}</span>{" "}
+            <span className="font-semibold text-success-600">{rows.length}</span>{" "}
             valid rows
             {invalidCount > 0 && (
-              <span className="text-red-500"> · {invalidCount} invalid</span>
+              <span className="text-error-600"> · {invalidCount} invalid</span>
             )}
           </p>
           <div className="max-h-48 overflow-y-auto border border-stone-200 rounded-lg divide-y divide-stone-100">
@@ -520,7 +520,7 @@ function CsvImportModal({
 
       {result && (
         <div className="mt-4 text-center text-sm space-y-1">
-          <p className="font-semibold text-green-600">
+          <p className="font-semibold text-success-600">
             Imported {result.imported} guests
           </p>
           <p className="text-ink-400">{result.duplicates} duplicates skipped</p>

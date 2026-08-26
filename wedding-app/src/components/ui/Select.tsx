@@ -28,7 +28,7 @@ export function Select({
         className={cn(
           "w-full min-h-[44px] px-3 border rounded-lg text-sm bg-white text-ink-700 focus:outline-none focus:ring-2 focus:border-transparent",
           error
-            ? "border-red-400 focus:ring-red-400"
+            ? "border-error-600 focus:ring-error-600"
             : "border-ink-300 focus:ring-bordeaux-500",
           className
         )}
@@ -41,7 +41,7 @@ export function Select({
           </option>
         ))}
       </select>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-error-600">{error}</p>}
     </div>
   );
 }

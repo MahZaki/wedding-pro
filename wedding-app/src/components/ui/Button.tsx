@@ -14,7 +14,7 @@ const variantStyles = {
     "bg-white text-ink-700 border border-ink-300 hover:bg-ink-50 focus-visible:ring-ink-400",
   ghost:
     "bg-transparent text-ink-600 hover:bg-ink-100 focus-visible:ring-ink-300",
-  danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500",
+  danger: "bg-error-600 text-white hover:bg-error-700 focus-visible:ring-error-600",
 };
 
 const sizeStyles = {

@@ -60,7 +60,7 @@ export function LineItemRow({
               <span
                 className={cn(
                   "ml-2 font-semibold",
-                  variance > 0 ? "text-red-600" : "text-green-600"
+                  variance > 0 ? "text-error-600" : "text-success-600"
                 )}
               >
                 {variance > 0 ? "+" : ""}
@@ -144,7 +144,7 @@ export function LineItemRow({
                           if (result?.error) toast("error", result.error);
                         })
                       }
-                      className="text-green-600 hover:underline min-h-[32px]"
+                      className="text-success-600 hover:underline min-h-[32px]"
                     >
                       Mark paid
                     </button>

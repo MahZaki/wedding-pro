@@ -113,11 +113,11 @@ export default async function DashboardPage() {
             </span>
           </div>
           <div className="flex items-baseline gap-3">
-            <span className="font-heading text-2xl font-bold text-green-600">
+            <span className="font-heading text-2xl font-bold text-success-600">
               {attending}
             </span>
-            <span className="text-xs text-red-500">{declined} declined</span>
-            <span className="text-xs text-yellow-600">{pending} pending</span>
+            <span className="text-xs text-error-600">{declined} declined</span>
+            <span className="text-xs text-warning-700">{pending} pending</span>
           </div>
           <p className="text-xs text-ink-400 mt-1">
             {(guests?.length ?? 0)} invited
@@ -177,8 +177,8 @@ export default async function DashboardPage() {
                       className={cn(
                         "inline-flex px-2 py-0.5 rounded-full text-xs font-medium",
                         overdue
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
+                          ? "bg-error-100 text-error-700"
+                          : "bg-warning-100 text-warning-700"
                       )}
                     >
                       {overdue ? "Overdue" : p.status ?? "pending"}

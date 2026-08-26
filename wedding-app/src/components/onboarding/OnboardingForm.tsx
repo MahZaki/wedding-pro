@@ -167,9 +167,9 @@ export function OnboardingForm() {
               Your budget plan
             </h2>
             {preview.warning && (
-              <div className="flex items-start gap-2 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-yellow-700">{preview.warning}</p>
+              <div className="flex items-start gap-2 bg-warning-50 border border-warning-100 rounded-lg p-3">
+                <AlertTriangle className="w-4 h-4 text-warning-700 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-warning-700">{preview.warning}</p>
               </div>
             )}
             <ul className="divide-y divide-stone-100 border border-stone-200 rounded-lg overflow-hidden max-h-80 overflow-y-auto">

@@ -37,7 +37,7 @@ export default async function BudgetPage() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
+      <div className="bg-error-50 border border-error-100 rounded-lg p-4 text-sm text-error-700">
         Failed to load budget. Please refresh the page.
       </div>
     );
@@ -99,8 +99,8 @@ export default async function BudgetPage() {
               <p
                 className={`font-heading text-xl font-bold ${
                   totalActual > totalEstimated
-                    ? "text-red-600"
-                    : "text-green-600"
+                    ? "text-error-600"
+                    : "text-success-600"
                 }`}
               >
                 {formatMoney(totalActual)}

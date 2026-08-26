@@ -294,7 +294,7 @@ function GuestChip({
       className={cn(
         "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium cursor-grab active:cursor-grabbing select-none touch-none",
         small ? "max-w-[150px]" : "",
-        conflict ? "bg-yellow-100 text-yellow-800" : "bg-ink-100 text-ink-700",
+        conflict ? "bg-warning-100 text-warning-700" : "bg-ink-100 text-ink-700",
         draggable.isDragging && "opacity-40"
       )}
       title={conflict ? "Has a conflict tag" : undefined}
@@ -347,7 +347,7 @@ function TableCard({
         className={cn(
           "rounded-lg border-2 bg-white shadow-sm transition-colors",
           table.shape === "round" ? "rounded-full w-36 h-36" : "w-44 min-h-28",
-          full ? "border-red-300" : "border-ink-300",
+          full ? "border-error-100" : "border-ink-300",
           droppable.isOver && "border-bordeaux-500 bg-bordeaux-50",
           draggable.isDragging && "opacity-60"
         )}
@@ -359,7 +359,7 @@ function TableCard({
           <p
             className={cn(
               "text-xs mt-0.5",
-              full ? "text-red-500 font-semibold" : "text-ink-400"
+              full ? "text-error-600 font-semibold" : "text-ink-400"
             )}
           >
             {guests.length}/{table.capacity}
@@ -375,7 +375,7 @@ function TableCard({
         <button
           onClick={onDelete}
           aria-label={`Delete ${table.label ?? `table ${table.table_number}`}`}
-          className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-stone-200 shadow flex items-center justify-center text-ink-400 hover:text-red-600"
+          className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-stone-200 shadow flex items-center justify-center text-ink-400 hover:text-error-600"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>

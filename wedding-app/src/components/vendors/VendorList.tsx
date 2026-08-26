@@ -161,7 +161,7 @@ function VendorCard({
             <button
               onClick={remove}
               aria-label={`Delete ${vendor.business_name}`}
-              className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-ink-400 hover:text-red-600 hover:bg-red-50"
+              className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-ink-400 hover:text-error-600 hover:bg-error-50"
             >
               <Trash2 className="w-4 h-4" />
             </button>

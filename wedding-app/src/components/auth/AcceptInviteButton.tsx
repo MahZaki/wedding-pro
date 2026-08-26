@@ -36,7 +36,7 @@ export function AcceptInviteButton({
 
   if (joined) {
     return (
-      <p className="text-sm font-medium text-green-600">Joined! Taking you there…</p>
+      <p className="text-sm font-medium text-success-600">Joined! Taking you there…</p>
     );
   }
 

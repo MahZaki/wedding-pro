@@ -22,7 +22,7 @@ export default async function LoginPage({
         Enter your email and we&apos;ll send you a magic link to sign in.
       </p>
       {params.error === "auth_failed" && (
-        <p className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <p className="mb-4 text-sm text-error-600 bg-error-50 border border-error-100 rounded-lg px-3 py-2">
           Sign-in link was invalid or expired. Please request a new one.
         </p>
       )}

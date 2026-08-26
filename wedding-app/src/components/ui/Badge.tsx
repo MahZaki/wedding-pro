@@ -9,9 +9,9 @@ export type BadgeVariant =
   | "neutral";
 
 const variantStyles: Record<BadgeVariant, string> = {
-  success: "bg-green-100 text-green-700",
-  pending: "bg-yellow-100 text-yellow-700",
-  danger: "bg-red-100 text-red-700",
+  success: "bg-success-100 text-success-700",
+  pending: "bg-warning-100 text-warning-700",
+  danger: "bg-error-100 text-error-700",
   premium: "bg-bordeaux-500 text-white",
   neutral: "bg-ink-100 text-ink-600",
 };

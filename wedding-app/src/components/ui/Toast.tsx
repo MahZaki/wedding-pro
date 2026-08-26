@@ -27,9 +27,9 @@ export function useToast() {
 }
 
 const styles: Record<ToastType, string> = {
-  success: "bg-green-600",
-  error: "bg-red-600",
-  warning: "bg-yellow-500",
+  success: "bg-success-600",
+  error: "bg-error-600",
+  warning: "bg-warning-700",
 };
 
 const icons: Record<ToastType, React.ReactNode> = {
