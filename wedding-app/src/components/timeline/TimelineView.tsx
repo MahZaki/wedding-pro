@@ -41,11 +41,9 @@ function formatTime(t: string): string {
 }
 
 export function TimelineView({
-  hasEvent,
   items,
   readOnly = false,
 }: {
-  hasEvent: boolean;
   items: TimelineItemView[];
   readOnly?: boolean;
 }) {
@@ -62,13 +60,10 @@ export function TimelineView({
   const { toast } = useToast();
 
   function generate() {
-    if (!hasEvent) {
-      toast("error", "Create an event first in Settings.");
-      return;
-    }
     startTransition(async () => {
       const result = await regenerateTimeline(anchors);
-      if (result?.error) toast("error", result.error);
+      if (result && "error" in result && result.error)
+        toast("error", result.error);
       else toast("success", "Timeline generated");
     });
   }

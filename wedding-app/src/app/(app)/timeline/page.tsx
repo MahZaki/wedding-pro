@@ -48,7 +48,6 @@ export default async function TimelinePage() {
 
   return (
     <TimelineView
-      hasEvent={!!event}
       items={items}
       readOnly={role === "viewer"}
     />

@@ -204,9 +204,13 @@ export function GuestsView({
                 <div className="flex gap-1 flex-shrink-0">
                   <button
                     onClick={() => {
-                      if (!g.token || !appUrl) return;
+                      if (!g.token) return;
+                      const origin =
+                        typeof window !== "undefined"
+                          ? window.location.origin
+                          : appUrl;
                       void navigator.clipboard
-                        .writeText(`${appUrl}/rsvp/${g.token}`)
+                        .writeText(`${origin}/rsvp/${g.token}`)
                         .then(() => toast("success", "RSVP link copied"))
                         .catch(() => toast("error", "Could not copy link"));
                     }}

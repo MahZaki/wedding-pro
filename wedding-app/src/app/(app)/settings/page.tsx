@@ -1,27 +1,25 @@
 import type { Metadata } from "next";
 import { requireWedding } from "@/lib/wedding";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { SettingsView } from "@/components/settings/SettingsView";
 
 export const metadata: Metadata = { title: "Settings" };
 
 export default async function SettingsPage() {
   const { wedding, role } = await requireWedding();
-  const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: members } = await supabase
+  // auth.users isn't readable by authenticated clients — resolve
+  // collaborator emails with the service-role client instead.
+  const admin = createAdminClient();
+  const { data: members } = await admin
     .from("wedding_members")
-    .select("role, invited_at, users ( email )")
-    .eq("wedding_id", wedding.id);
+    .select("role, users ( email )")
+    .eq("wedding_id", wedding.id)
+    .order("invited_at");
 
   return (
     <SettingsView
       role={role}
-      email={user?.email ?? ""}
       appUrl={process.env.NEXT_PUBLIC_APP_URL ?? ""}
       wedding={{
         title: wedding.title,

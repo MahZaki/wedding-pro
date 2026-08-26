@@ -14,9 +14,9 @@ const schema = z.object({
   email: z.string().email("Enter a valid email address"),
 });
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.input<typeof schema>;
 
-export function LoginForm() {
+export function LoginForm({ next = "/dashboard" }: { next?: string }) {
   const [sent, setSent] = useState(false);
   const { toast } = useToast();
   const {
@@ -29,14 +29,13 @@ export function LoginForm() {
   async function onSubmit(data: FormData) {
     try {
       const supabase = createClient();
+      const callbackUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+          : undefined;
       const { error } = await supabase.auth.signInWithOtp({
         email: data.email,
-        options: {
-          emailRedirectTo:
-            typeof window !== "undefined"
-              ? `${window.location.origin}/auth/callback`
-              : undefined,
-        },
+        options: { emailRedirectTo: callbackUrl },
       });
       if (error) throw error;
       setSent(true);

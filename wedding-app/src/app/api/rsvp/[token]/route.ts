@@ -46,8 +46,9 @@ export async function POST(
     return NextResponse.json({ error: "Invalid link." }, { status: 404 });
   }
 
-  // Find the primary event for this guest's wedding
-  const { data: event } = await admin
+  // Find the primary event for this guest's wedding; lazily create
+  // one if the couple never set events up so RSVPs always work.
+  let { data: event } = await admin
     .from("events")
     .select("id")
     .eq("wedding_id", guest.wedding_id)
@@ -56,10 +57,19 @@ export async function POST(
     .maybeSingle();
 
   if (!event) {
-    return NextResponse.json(
-      { error: "RSVPs are not open yet. Check back soon!" },
-      { status: 409 }
-    );
+    const { data: createdEvent, error: eventErr } = await admin
+      .from("events")
+      .insert({ wedding_id: guest.wedding_id, name: "Wedding Day" })
+      .select("id")
+      .single();
+    if (eventErr || !createdEvent) {
+      console.error("rsvp lazy-event:", eventErr);
+      return NextResponse.json(
+        { error: "RSVPs are not open yet. Check back soon!" },
+        { status: 409 }
+      );
+    }
+    event = createdEvent;
   }
 
   const { error: upsertError } = await admin.from("rsvps").upsert(

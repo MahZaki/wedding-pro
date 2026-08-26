@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Copy, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -21,13 +21,11 @@ interface WeddingSettings {
 export function SettingsView({
   wedding,
   role,
-  email,
   appUrl,
   members,
 }: {
   wedding: WeddingSettings;
   role: string;
-  email: string;
   appUrl: string;
   members: Array<{ role: string; email: string }>;
 }) {
@@ -37,6 +35,10 @@ export function SettingsView({
   const [guests, setGuests] = useState(String(wedding.guest_count_estimate));
   const [region, setRegion] = useState(wedding.region_tier);
   const [isPending, startTransition] = useTransition();
+  const [origin, setOrigin] = useState(appUrl);
+  useEffect(() => {
+    if (typeof window !== "undefined") setOrigin(window.location.origin);
+  }, []);
   const { toast } = useToast();
 
   const canEdit = role === "owner" || role === "planner";
@@ -58,7 +60,7 @@ export function SettingsView({
 
   function copyInvite() {
     void navigator.clipboard
-      .writeText(`${appUrl}/invite/${wedding.id}`)
+      .writeText(`${origin}/invite/${wedding.id}`)
       .then(() => toast("success", "Invite link copied"))
       .catch(() => toast("error", "Could not copy link"));
   }
@@ -160,7 +162,7 @@ export function SettingsView({
             <div className="flex gap-2">
               <input
                 readOnly
-                value={`${appUrl}/invite/${wedding.id}`}
+                value={`${origin}/invite/${wedding.id}`}
                 onFocus={(e) => e.target.select()}
                 className="flex-1 min-h-[44px] px-3 border border-slate-300 rounded-lg text-xs bg-slate-50 text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
                 aria-label="Invite link"
@@ -178,8 +180,7 @@ export function SettingsView({
         <h2 className="font-heading font-semibold text-slate-700 mb-2">
           Account
         </h2>
-        <p className="text-sm text-slate-500">Signed in as {email}</p>
-        <p className="text-xs text-slate-400 capitalize mt-1">
+        <p className="text-xs text-slate-400 capitalize">
           Your role: {role}
         </p>
       </section>

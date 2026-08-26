@@ -16,7 +16,7 @@ export default async function InvitePage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect(`/login`);
+  if (!user) redirect(`/login?next=${encodeURIComponent(`/invite/${token}`)}`);
 
   // Validate the invite target exists
   const { data: wedding } = await supabase

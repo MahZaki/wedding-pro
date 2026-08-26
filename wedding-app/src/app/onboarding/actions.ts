@@ -100,6 +100,17 @@ export async function createWedding(
     return { error: "Wedding created but budget allocation failed." };
   }
 
+  // Primary event — timeline and RSVPs depend on it existing
+  const { error: eventError } = await supabase.from("events").insert({
+    wedding_id: wedding.id,
+    name: "Wedding Day",
+    date: data.wedding_date || null,
+  });
+  if (eventError) {
+    console.error("createWedding event:", eventError);
+    return { error: "Wedding created but default event failed." };
+  }
+
   // One default budget_item per category
   const { data: createdCats } = await supabase
     .from("budget_categories")
