@@ -57,13 +57,8 @@ export function TableVisual({
   const isDragging = draggable.isDragging;
 
   return (
+    /* Footprint container — positioning only, no dnd-kit hooks */
     <div
-      ref={(node) => {
-        droppable.setNodeRef(node);
-        draggable.setNodeRef(node);
-      }}
-      {...(!readOnly ? draggable.listeners : {})}
-      {...draggable.attributes}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -73,13 +68,16 @@ export function TableVisual({
         width: footprint.width,
         height: footprint.height,
       }}
-      className={cn(
-        "select-none group",
-        !readOnly && "cursor-grab active:cursor-grabbing touch-none",
-      )}
+      className="select-none group"
     >
-      {/* Table body — centered inside footprint */}
+      {/* Table body — this is the draggable + droppable target */}
       <div
+        ref={(node) => {
+          droppable.setNodeRef(node);
+          draggable.setNodeRef(node);
+        }}
+        {...(!readOnly ? draggable.listeners : {})}
+        {...draggable.attributes}
         className={cn(
           "absolute border-2 shadow-sm transition-all duration-150",
           shapeClass,
@@ -90,15 +88,13 @@ export function TableVisual({
               : "border-stone-200 bg-white",
           hovered && !isOver && "border-bordeaux-300 shadow-md",
           isDragging && "opacity-50 scale-95",
+          !readOnly && "cursor-grab active:cursor-grabbing touch-none",
         )}
         style={{
           left: bodyOff.x,
           top: bodyOff.y,
           width: bodyDim.w,
           height: bodyDim.h,
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
         }}
       >
         {/* Center label */}
@@ -242,7 +238,7 @@ function OccupiedSeat({
         isOver && "ring-2 ring-bordeaux-400 ring-offset-1 scale-110",
         draggable.isDragging && "opacity-30",
       )}
-      onMouseDown={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
       onDoubleClick={(e) => {
         e.stopPropagation();
         if (!readOnly) onRemoveGuest(guest.id);
