@@ -19,6 +19,7 @@ import { useToast } from "@/components/ui/Toast";
 import { GuestSidebar } from "./GuestSidebar";
 import { TableVisual } from "./TableVisual";
 import { AddTableModal } from "./AddTableModal";
+import { getTableFootprint } from "./helpers";
 import {
   moveTable,
   deleteTable,
@@ -113,7 +114,8 @@ export function SeatingBoard({
       if (overId.startsWith("seat-")) {
         const parts = overId.split("-");
         const targetTableId = parts[1];
-        const targetGuestId = parts[2] === "empty" ? null : parts[2];
+        const isEmpty = parts[2] === "empty";
+        const targetGuestId = isEmpty ? null : parts[2];
 
         if (targetGuestId) {
           toast("warning", "That seat is taken");
@@ -155,8 +157,12 @@ export function SeatingBoard({
 
     if (data.type === "table" && data.table && e.delta) {
       const t = data.table;
-      const nx = Math.max(0, Math.round(t.pos_x + e.delta.x));
-      const ny = Math.max(0, Math.round(t.pos_y + e.delta.y));
+      const fp = getTableFootprint(t.shape, t.capacity);
+      const canvasEl = document.querySelector("[data-canvas]");
+      const cw = canvasEl ? canvasEl.clientWidth : 1200;
+      const ch = canvasEl ? canvasEl.clientHeight : 800;
+      const nx = Math.max(0, Math.min(cw - fp.width, Math.round(t.pos_x + e.delta.x)));
+      const ny = Math.max(0, Math.min(ch - fp.height, Math.round(t.pos_y + e.delta.y)));
       if (nx === t.pos_x && ny === t.pos_y) return;
       startTransition(async () => {
         await moveTable({ id: t.id, pos_x: nx, pos_y: ny });
@@ -299,7 +305,7 @@ export function SeatingBoard({
                 />
               </div>
             ) : (
-              <div className="relative flex-1 min-h-0 rounded-xl border border-stone-200 bg-white overflow-auto touch-none">
+              <div className="relative flex-1 min-h-0 rounded-xl border border-stone-200 bg-white overflow-auto touch-none" data-canvas>
                 {/* Dot grid background */}
                 <div
                   className="pointer-events-none absolute inset-0 opacity-30"
@@ -314,8 +320,20 @@ export function SeatingBoard({
                 <div
                   className="relative"
                   style={{
-                    width: Math.max(...tables.map((t) => t.pos_x + 300), 900),
-                    height: Math.max(...tables.map((t) => t.pos_y + 280), 600),
+                    width: Math.max(
+                      ...tables.map((t) => {
+                        const fp = getTableFootprint(t.shape, t.capacity);
+                        return t.pos_x + fp.width + 40;
+                      }),
+                      900,
+                    ),
+                    height: Math.max(
+                      ...tables.map((t) => {
+                        const fp = getTableFootprint(t.shape, t.capacity);
+                        return t.pos_y + fp.height + 40;
+                      }),
+                      600,
+                    ),
                     minWidth: "100%",
                     minHeight: "100%",
                   }}

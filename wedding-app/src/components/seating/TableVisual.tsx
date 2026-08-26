@@ -5,7 +5,12 @@ import { useDroppable, useDraggable } from "@dnd-kit/core";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TableView, GuestView } from "./SeatingBoard";
-import { getSeatPositions } from "./helpers";
+import {
+  getTableFootprint,
+  getSeatPositions,
+  tableBodyOffset,
+  tableBodyDimensions,
+} from "./helpers";
 
 export function TableVisual({
   table,
@@ -22,7 +27,17 @@ export function TableVisual({
 }) {
   const [hovered, setHovered] = useState(false);
   const full = guests.length >= table.capacity;
-  const seats = getSeatPositions(table.shape, table.capacity, 0, 0, guests);
+
+  const footprint = getTableFootprint(table.shape, table.capacity);
+  const seats = getSeatPositions(
+    table.shape,
+    table.capacity,
+    footprint.width,
+    footprint.height,
+    guests,
+  );
+  const bodyOff = tableBodyOffset(table.shape, footprint.width, footprint.height);
+  const bodyDim = tableBodyDimensions(table.shape);
 
   const droppable = useDroppable({ id: `table-${table.id}` });
   const draggable = useDraggable({
@@ -37,13 +52,6 @@ export function TableVisual({
       : table.shape === "square"
         ? "rounded-lg"
         : "rounded-xl";
-
-  const sizeClass =
-    table.shape === "round"
-      ? "w-[160px] h-[160px]"
-      : table.shape === "square"
-        ? "w-[140px] h-[140px]"
-        : "w-[200px] h-[120px]";
 
   const isOver = droppable.isOver;
   const isDragging = draggable.isDragging;
@@ -62,18 +70,19 @@ export function TableVisual({
         position: "absolute",
         left: table.pos_x + (draggable.transform?.x ?? 0),
         top: table.pos_y + (draggable.transform?.y ?? 0),
+        width: footprint.width,
+        height: footprint.height,
       }}
       className={cn(
         "select-none group",
         !readOnly && "cursor-grab active:cursor-grabbing touch-none",
       )}
     >
-      {/* Table body */}
+      {/* Table body — centered inside footprint */}
       <div
         className={cn(
-          "relative border-2 shadow-sm transition-all duration-150",
+          "absolute border-2 shadow-sm transition-all duration-150",
           shapeClass,
-          sizeClass,
           isOver
             ? "border-bordeaux-500 bg-bordeaux-50/60 shadow-md scale-[1.02]"
             : full
@@ -82,9 +91,15 @@ export function TableVisual({
           hovered && !isOver && "border-bordeaux-300 shadow-md",
           isDragging && "opacity-50 scale-95",
         )}
-      onClick={(e) => {
-        e.stopPropagation();
-      }}
+        style={{
+          left: bodyOff.x,
+          top: bodyOff.y,
+          width: bodyDim.w,
+          height: bodyDim.h,
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
       >
         {/* Center label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
@@ -100,24 +115,28 @@ export function TableVisual({
             {guests.length} / {table.capacity}
           </span>
         </div>
-
-        {/* Seats around the table */}
-        {seats.map((s, i) => (
-          <SeatCircle
-            key={i}
-            x={s.x}
-            y={s.y}
-            guest={s.guest}
-            tableId={table.id}
-            readOnly={readOnly}
-            onRemoveGuest={onRemoveGuest}
-          />
-        ))}
       </div>
 
-      {/* Contextual toolbar — appears on hover */}
+      {/* Seats — positioned relative to footprint top-left */}
+      {seats.map((s, i) => (
+        <SeatCircle
+          key={i}
+          x={s.x}
+          y={s.y}
+          guest={s.guest}
+          seatIndex={i}
+          tableId={table.id}
+          readOnly={readOnly}
+          onRemoveGuest={onRemoveGuest}
+        />
+      ))}
+
+      {/* Contextual toolbar */}
       {!readOnly && hovered && (
-        <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white border border-stone-200 rounded-lg shadow-lg px-2 py-1 z-30">
+        <div
+          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white border border-stone-200 rounded-lg shadow-lg px-2 py-1 z-30"
+          style={{ bottom: -36 }}
+        >
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -134,46 +153,21 @@ export function TableVisual({
   );
 }
 
-function SeatCircle({
-  x,
-  y,
-  guest,
-  tableId,
-  readOnly,
-  onRemoveGuest,
-}: {
-  x: number;
-  y: number;
-  guest: GuestView | null;
-  tableId: string;
-  readOnly: boolean;
-  onRemoveGuest: (guestId: string) => void;
-}) {
-  return guest ? (
-    <OccupiedSeat
-      x={x}
-      y={y}
-      guest={guest}
-      tableId={tableId}
-      readOnly={readOnly}
-      onRemoveGuest={onRemoveGuest}
-    />
-  ) : (
-    <EmptySeat x={x} y={y} tableId={tableId} />
-  );
-}
+/* ── Empty seat (droppable only) ─────────────────────────────── */
 
 function EmptySeat({
   x,
   y,
   tableId,
+  seatIndex,
 }: {
   x: number;
   y: number;
   tableId: string;
+  seatIndex: number;
 }) {
   const { setNodeRef, isOver } = useDroppable({
-    id: `seat-${tableId}-empty`,
+    id: `seat-${tableId}-empty-${seatIndex}`,
     data: { type: "seat", tableId, guest: null },
   });
 
@@ -190,6 +184,8 @@ function EmptySeat({
     />
   );
 }
+
+/* ── Occupied seat (droppable + draggable) ────────────────────── */
 
 function OccupiedSeat({
   x,
@@ -255,5 +251,38 @@ function OccupiedSeat({
     >
       {initials}
     </div>
+  );
+}
+
+/* ── Seat dispatcher ─────────────────────────────────────────── */
+
+function SeatCircle({
+  x,
+  y,
+  guest,
+  seatIndex,
+  tableId,
+  readOnly,
+  onRemoveGuest,
+}: {
+  x: number;
+  y: number;
+  guest: GuestView | null;
+  seatIndex: number;
+  tableId: string;
+  readOnly: boolean;
+  onRemoveGuest: (guestId: string) => void;
+}) {
+  return guest ? (
+    <OccupiedSeat
+      x={x}
+      y={y}
+      guest={guest}
+      tableId={tableId}
+      readOnly={readOnly}
+      onRemoveGuest={onRemoveGuest}
+    />
+  ) : (
+    <EmptySeat x={x} y={y} tableId={tableId} seatIndex={seatIndex} />
   );
 }
