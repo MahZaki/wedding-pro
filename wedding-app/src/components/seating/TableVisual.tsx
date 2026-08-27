@@ -107,6 +107,48 @@ export function TableVisual({
             {guests.length} / {table.capacity}
           </span>
         </div>
+
+        {/* Delete — always visible, pinned to body corner (round tables
+            clip corners, so offset into the interior) */}
+        {!readOnly && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            aria-label={`Delete ${table.label ?? `table ${table.table_number}`}`}
+            title="Delete table"
+            className={cn(
+              "absolute z-20 w-6 h-6 rounded-full bg-white border border-stone-200 shadow",
+              "flex items-center justify-center text-ink-400",
+              "hover:text-error-600 hover:border-error-300 transition-colors",
+              table.shape === "round"
+                ? "-top-1 -right-1"
+                : "-top-2 -right-2",
+            )}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {/* Reorder grip — pinned to body top-left */}
+        {!readOnly && (
+          <div
+            ref={reorder.setNodeRef}
+            {...reorder.listeners}
+            {...reorder.attributes}
+            title="Drag onto another table to reorder"
+            className={cn(
+              "absolute z-20 w-6 h-6 rounded-full bg-white border border-stone-200 shadow",
+              "flex items-center justify-center text-ink-400",
+              "cursor-grab active:cursor-grabbing touch-none hover:text-bordeaux-600 hover:border-bordeaux-300",
+              "transition-colors",
+              table.shape === "round" ? "-top-1 -left-1" : "-top-2 -left-2",
+            )}
+          >
+            <GripVertical className="w-3.5 h-3.5" />
+          </div>
+        )}
       </div>
 
       {/* Seats — positioned relative to footprint top-left */}
@@ -122,43 +164,6 @@ export function TableVisual({
           onRemoveGuest={onRemoveGuest}
         />
       ))}
-
-      {/* Reorder handle — drag onto another table to swap positions */}
-      {!readOnly && (
-        <div
-          ref={reorder.setNodeRef}
-          {...reorder.listeners}
-          {...reorder.attributes}
-          title="Drag onto another table to reorder"
-          className={cn(
-            "absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border border-stone-200 shadow flex items-center justify-center text-ink-400",
-            "cursor-grab active:cursor-grabbing touch-none hover:text-bordeaux-600 hover:border-bordeaux-300",
-            reorder.isDragging && "opacity-40",
-            "transition-colors",
-          )}
-        >
-          <GripVertical className="w-3.5 h-3.5" />
-        </div>
-      )}
-
-      {/* Contextual delete toolbar */}
-      {!readOnly && hovered && (
-        <div
-          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white border border-stone-200 rounded-lg shadow-lg px-2 py-1 z-30"
-          style={{ bottom: -36 }}
-        >
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="p-1 rounded text-ink-300 hover:text-error-600 hover:bg-error-50 transition-colors"
-            title="Delete table"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
     </div>
   );
 }

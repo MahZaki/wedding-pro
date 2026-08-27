@@ -98,45 +98,27 @@ function tableBodySize(shape: "round" | "banquet" | "square") {
   }
 }
 
-function seatBounds(
-  shape: "round" | "banquet" | "square",
-  capacity: number,
-  fw: number,
-  fh: number,
-) {
-  const seats = getSeatPositions(shape, capacity, fw, fh, []);
-  if (seats.length === 0) return { minX: fw / 2, maxX: fw / 2, minY: fh / 2, maxY: fh / 2 };
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const s of seats) {
-    minX = Math.min(minX, s.x);
-    maxX = Math.max(maxX, s.x);
-    minY = Math.min(minY, s.y);
-    maxY = Math.max(maxY, s.y);
-  }
-  return { minX, maxX, minY, maxY };
-}
-
 export function getTableFootprint(
   shape: "round" | "banquet" | "square",
   capacity: number,
 ): Footprint {
   const body = tableBodySize(shape);
-  const minW = body.w + 2 * (SEAT_R + SAFETY);
-  const minH = body.h + 2 * (SEAT_R + SAFETY);
 
-  // Iterative: grow footprint until seats fit inside
-  let fw = minW;
-  let fh = minH;
-  for (let i = 0; i < 5; i++) {
-    const b = seatBounds(shape, capacity, fw, fh);
-    const needW = b.maxX + SEAT_R + SAFETY - (fw - b.minX - SEAT_R - SAFETY);
-    const needH = b.maxY + SEAT_R + SAFETY - (fh - b.minY - SEAT_R - SAFETY);
-    if (needW <= 0 && needH <= 0) break;
-    fw = Math.max(fw, fw + Math.ceil(needW / 2) * 2);
-    fh = Math.max(fh, fh + Math.ceil(needH / 2) * 2);
+  // Tight footprint that exactly wraps the table body + all seats.
+  // Seats sit at max(72, cap*5.5) radius from center (round) or on the
+  // body perimeter (banquet/square) with a SEAT_R + 4 offset.
+  if (shape === "round") {
+    const r = Math.max(72, Math.ceil(capacity * 5.5));
+    const d = 2 * (r + SEAT_R) + 2 * SAFETY;
+    return { width: d, height: d };
   }
 
-  return { width: fw, height: fh };
+  const extentW = body.w + 2 * (SEAT_R + 4);
+  const extentH = body.h + 2 * (SEAT_R + 4);
+  return {
+    width: extentW + 2 * SAFETY,
+    height: extentH + 2 * SAFETY,
+  };
 }
 
 /* ── AABB overlap test ──────────────────────────────────────────── */
@@ -192,17 +174,16 @@ export interface CanvasLayout {
 
 /**
  * Deterministically arrange tables into a non-overlapping grid.
- * Order (by table_number) maps to grid slots. Assumes all tables are
- * the same size "cell" so gaps never cause collisions, but still pads
- * each footprint for full visual separation.
+ * Order (by table_number) maps to grid slots. Uses the largest
+ * footprint as a uniform cell so rows align cleanly.
  */
 export function computeTableLayout(
   tables: LayoutTableInput[],
-  canvasWidth = 1100,
+  canvasWidth = 1000,
 ): CanvasLayout {
   const PAD = 60;
-  const GAP_X = 64;
-  const GAP_Y = 80;
+  const GAP_X = 54;
+  const GAP_Y = 72;
 
   const sorted = [...tables].sort(
     (a, b) => (a.table_number ?? 0) - (b.table_number ?? 0),
@@ -214,8 +195,6 @@ export function computeTableLayout(
     return { positions, width: 900, height: 600 };
   }
 
-  // Use the largest footprint in the set as the uniform cell size so
-  // rows align cleanly regardless of mixed shapes.
   let cellW = 0;
   let cellH = 0;
   for (const t of sorted) {
