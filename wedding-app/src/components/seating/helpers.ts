@@ -1,6 +1,11 @@
-import type { GuestView } from "./SeatingBoard";
-
 const CONFLICT_TAGS = ["divorced-parents", "conflict", "ex"];
+
+export interface GuestView {
+  id: string;
+  name: string;
+  table_id: string | null;
+  tags: string[];
+}
 
 export function hasConflict(guest: GuestView): boolean {
   return guest.tags.some((t) => CONFLICT_TAGS.includes(t.toLowerCase()));
@@ -168,4 +173,79 @@ export function tableBodyOffset(
 
 export function tableBodyDimensions(shape: "round" | "banquet" | "square") {
   return tableBodySize(shape);
+}
+
+/* ── Grid layout (auto-placement) ────────────────────────────────── */
+
+export interface LayoutTableInput {
+  id: string;
+  shape: "round" | "banquet" | "square";
+  capacity: number;
+  table_number?: number | null;
+}
+
+export interface CanvasLayout {
+  positions: Map<string, { x: number; y: number }>;
+  width: number;
+  height: number;
+}
+
+/**
+ * Deterministically arrange tables into a non-overlapping grid.
+ * Order (by table_number) maps to grid slots. Assumes all tables are
+ * the same size "cell" so gaps never cause collisions, but still pads
+ * each footprint for full visual separation.
+ */
+export function computeTableLayout(
+  tables: LayoutTableInput[],
+  canvasWidth = 1100,
+): CanvasLayout {
+  const PAD = 60;
+  const GAP_X = 64;
+  const GAP_Y = 80;
+
+  const sorted = [...tables].sort(
+    (a, b) => (a.table_number ?? 0) - (b.table_number ?? 0),
+  );
+
+  const positions = new Map<string, { x: number; y: number }>();
+
+  if (sorted.length === 0) {
+    return { positions, width: 900, height: 600 };
+  }
+
+  // Use the largest footprint in the set as the uniform cell size so
+  // rows align cleanly regardless of mixed shapes.
+  let cellW = 0;
+  let cellH = 0;
+  for (const t of sorted) {
+    const fp = getTableFootprint(t.shape, t.capacity);
+    cellW = Math.max(cellW, fp.width);
+    cellH = Math.max(cellH, fp.height);
+  }
+
+  let x = PAD;
+  let y = PAD;
+  let maxX = PAD;
+  let maxY = PAD;
+
+  for (const t of sorted) {
+    const fp = getTableFootprint(t.shape, t.capacity);
+
+    positions.set(t.id, { x, y });
+    maxX = Math.max(maxX, x + fp.width);
+    maxY = Math.max(maxY, y + fp.height);
+
+    x += cellW + GAP_X;
+    if (x + cellW > canvasWidth - PAD) {
+      x = PAD;
+      y += cellH + GAP_Y;
+    }
+  }
+
+  return {
+    positions,
+    width: Math.max(maxX + PAD, 900),
+    height: Math.max(maxY + PAD, 600),
+  };
 }

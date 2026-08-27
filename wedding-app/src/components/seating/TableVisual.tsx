@@ -1,8 +1,10 @@
 "use client";
 
+/* eslint-disable react-hooks/refs -- @dnd-kit's API exposes ref-derived values for render */
+
 import { useState } from "react";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
-import { Trash2 } from "lucide-react";
+import { Trash2, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TableView, GuestView } from "./SeatingBoard";
 import {
@@ -39,11 +41,14 @@ export function TableVisual({
   const bodyOff = tableBodyOffset(table.shape, footprint.width, footprint.height);
   const bodyDim = tableBodyDimensions(table.shape);
 
+  // Whole table is a drop target for guests (no free-drag).
   const droppable = useDroppable({ id: `table-${table.id}` });
-  const draggable = useDraggable({
-    id: `table-${table.id}`,
+
+  // Reorder handle: dragging this onto another table swaps their grid order.
+  const reorder = useDraggable({
+    id: `reorder-${table.id}`,
     disabled: readOnly,
-    data: { type: "table", table },
+    data: { type: "reorder", table },
   });
 
   const shapeClass =
@@ -54,30 +59,23 @@ export function TableVisual({
         : "rounded-xl";
 
   const isOver = droppable.isOver;
-  const isDragging = draggable.isDragging;
 
   return (
-    /* Footprint container — positioning only, no dnd-kit hooks */
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         position: "absolute",
-        left: table.pos_x + (draggable.transform?.x ?? 0),
-        top: table.pos_y + (draggable.transform?.y ?? 0),
+        left: table.x,
+        top: table.y,
         width: footprint.width,
         height: footprint.height,
       }}
       className="select-none group"
     >
-      {/* Table body — this is the draggable + droppable target */}
+      {/* Table body — drop target for guests */}
       <div
-        ref={(node) => {
-          droppable.setNodeRef(node);
-          draggable.setNodeRef(node);
-        }}
-        {...(!readOnly ? draggable.listeners : {})}
-        {...draggable.attributes}
+        ref={droppable.setNodeRef}
         className={cn(
           "absolute border-2 shadow-sm transition-all duration-150",
           shapeClass,
@@ -87,8 +85,6 @@ export function TableVisual({
               ? "border-stone-300 bg-stone-50"
               : "border-stone-200 bg-white",
           hovered && !isOver && "border-bordeaux-300 shadow-md",
-          isDragging && "opacity-50 scale-95",
-          !readOnly && "cursor-grab active:cursor-grabbing touch-none",
         )}
         style={{
           left: bodyOff.x,
@@ -127,7 +123,25 @@ export function TableVisual({
         />
       ))}
 
-      {/* Contextual toolbar */}
+      {/* Reorder handle — drag onto another table to swap positions */}
+      {!readOnly && (
+        <div
+          ref={reorder.setNodeRef}
+          {...reorder.listeners}
+          {...reorder.attributes}
+          title="Drag onto another table to reorder"
+          className={cn(
+            "absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border border-stone-200 shadow flex items-center justify-center text-ink-400",
+            "cursor-grab active:cursor-grabbing touch-none hover:text-bordeaux-600 hover:border-bordeaux-300",
+            reorder.isDragging && "opacity-40",
+            "transition-colors",
+          )}
+        >
+          <GripVertical className="w-3.5 h-3.5" />
+        </div>
+      )}
+
+      {/* Contextual delete toolbar */}
       {!readOnly && hovered && (
         <div
           className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white border border-stone-200 rounded-lg shadow-lg px-2 py-1 z-30"

@@ -19,9 +19,8 @@ import { useToast } from "@/components/ui/Toast";
 import { GuestSidebar } from "./GuestSidebar";
 import { TableVisual } from "./TableVisual";
 import { AddTableModal } from "./AddTableModal";
-import { getTableFootprint } from "./helpers";
 import {
-  moveTable,
+  swapTableOrder,
   deleteTable,
   assignGuest,
 } from "@/app/(app)/seating/actions";
@@ -31,8 +30,8 @@ export interface TableView {
   table_number: number;
   shape: "round" | "banquet" | "square";
   capacity: number;
-  pos_x: number;
-  pos_y: number;
+  x: number;
+  y: number;
   label: string | null;
 }
 
@@ -44,7 +43,7 @@ export interface GuestView {
 }
 
 interface DragData {
-  type: "guest" | "table";
+  type: "guest" | "reorder";
   guest?: GuestView;
   table?: TableView;
   fromSeat?: boolean;
@@ -53,10 +52,14 @@ interface DragData {
 export function SeatingBoard({
   tables,
   guests,
+  canvasWidth,
+  canvasHeight,
   readOnly = false,
 }: {
   tables: TableView[];
   guests: GuestView[];
+  canvasWidth: number;
+  canvasHeight: number;
   readOnly?: boolean;
 }) {
   const [showAdd, setShowAdd] = useState(false);
@@ -153,19 +156,21 @@ export function SeatingBoard({
           if (r?.error) toast("error", r.error);
         });
       }
+      return;
     }
 
-    if (data.type === "table" && data.table && e.delta) {
-      const t = data.table;
-      const fp = getTableFootprint(t.shape, t.capacity);
-      const canvasEl = document.querySelector("[data-canvas]");
-      const cw = canvasEl ? canvasEl.clientWidth : 1200;
-      const ch = canvasEl ? canvasEl.clientHeight : 800;
-      const nx = Math.max(0, Math.min(cw - fp.width, Math.round(t.pos_x + e.delta.x)));
-      const ny = Math.max(0, Math.min(ch - fp.height, Math.round(t.pos_y + e.delta.y)));
-      if (nx === t.pos_x && ny === t.pos_y) return;
+    // Reorder handle dropped onto another table → swap grid order
+    if (data.type === "reorder" && data.table) {
+      const overId = e.over?.id as string | undefined;
+      if (!overId || !overId.startsWith("table-")) return;
+      const targetTableId = overId.replace("table-", "");
+      if (targetTableId === data.table.id) return;
       startTransition(async () => {
-        await moveTable({ id: t.id, pos_x: nx, pos_y: ny });
+        const r = await swapTableOrder({
+          idA: data.table!.id,
+          idB: targetTableId,
+        });
+        if (r?.error) toast("error", r.error);
       });
     }
   }
@@ -305,7 +310,7 @@ export function SeatingBoard({
                 />
               </div>
             ) : (
-              <div className="relative flex-1 min-h-0 rounded-xl border border-stone-200 bg-white overflow-auto touch-none" data-canvas>
+              <div className="relative flex-1 min-h-0 rounded-xl border border-stone-200 bg-white overflow-auto touch-none">
                 {/* Dot grid background */}
                 <div
                   className="pointer-events-none absolute inset-0 opacity-30"
@@ -320,20 +325,8 @@ export function SeatingBoard({
                 <div
                   className="relative"
                   style={{
-                    width: Math.max(
-                      ...tables.map((t) => {
-                        const fp = getTableFootprint(t.shape, t.capacity);
-                        return t.pos_x + fp.width + 40;
-                      }),
-                      900,
-                    ),
-                    height: Math.max(
-                      ...tables.map((t) => {
-                        const fp = getTableFootprint(t.shape, t.capacity);
-                        return t.pos_y + fp.height + 40;
-                      }),
-                      600,
-                    ),
+                    width: Math.max(canvasWidth, 900),
+                    height: Math.max(canvasHeight, 600),
                     minWidth: "100%",
                     minHeight: "100%",
                   }}
