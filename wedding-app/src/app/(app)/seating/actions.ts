@@ -162,3 +162,57 @@ export async function assignGuest(input: unknown): Promise<ActionResult> {
   revalidatePath("/dashboard");
   return { ok: true };
 }
+
+export async function swapGuests(input: unknown): Promise<ActionResult> {
+  const parsed = z
+    .object({
+      guestIdA: z.string().uuid(),
+      guestIdB: z.string().uuid(),
+    })
+    .safeParse(input);
+  if (!parsed.success) return { error: "Invalid swap" };
+
+  await requireWedding();
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("guests")
+    .select("id, table_id")
+    .in("id", [parsed.data.guestIdA, parsed.data.guestIdB]);
+
+  if (error || !data || data.length !== 2) {
+    console.error("swapGuests fetch:", error);
+    return { error: "Guests not found." };
+  }
+
+  const a = data.find((g) => g.id === parsed.data.guestIdA)!;
+  const b = data.find((g) => g.id === parsed.data.guestIdB)!;
+
+  // Already used for the same table (or pool) — nothing to do.
+  if (a.table_id === b.table_id) {
+    revalidatePath("/seating");
+    return { ok: true };
+  }
+
+  const { error: errA } = await supabase
+    .from("guests")
+    .update({ table_id: b.table_id })
+    .eq("id", a.id);
+  if (errA) {
+    console.error("swapGuests A:", errA);
+    return { error: "Failed to swap guests." };
+  }
+
+  const { error: errB } = await supabase
+    .from("guests")
+    .update({ table_id: a.table_id })
+    .eq("id", b.id);
+  if (errB) {
+    console.error("swapGuests B:", errB);
+    return { error: "Failed to swap guests." };
+  }
+
+  revalidatePath("/seating");
+  revalidatePath("/dashboard");
+  return { ok: true };
+}

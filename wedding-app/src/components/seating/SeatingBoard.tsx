@@ -21,6 +21,7 @@ import { TableVisual } from "./TableVisual";
 import { AddTableModal } from "./AddTableModal";
 import {
   swapTableOrder,
+  swapGuests,
   deleteTable,
   assignGuest,
 } from "@/app/(app)/seating/actions";
@@ -120,14 +121,28 @@ export function SeatingBoard({
         const isEmpty = parts[2] === "empty";
         const targetGuestId = isEmpty ? null : parts[2];
 
+        const table = tables.find((t) => t.id === targetTableId);
+
+        // Occupied seat → swap the dragged guest into it (seat-to-seat only).
         if (targetGuestId) {
-          toast("warning", "That seat is taken");
+          if (targetGuestId === data.guest.id) return;
+          // Sidebar guests don't displace a seated guest by surprise.
+          if (!data.fromSeat) {
+            toast("warning", "That seat is taken");
+            return;
+          }
+          startTransition(async () => {
+            const r = await swapGuests({
+              guestIdA: data.guest!.id,
+              guestIdB: targetGuestId,
+            });
+            if (r?.error) toast("error", r.error);
+          });
           return;
         }
 
         if (data.guest.table_id === targetTableId) return;
 
-        const table = tables.find((t) => t.id === targetTableId);
         const current = seatedByTable.get(targetTableId)?.length ?? 0;
         if (table && current >= table.capacity) {
           toast("warning", `${table.label ?? `Table ${table.table_number}`} is full`);
@@ -310,68 +325,67 @@ export function SeatingBoard({
                 />
               </div>
             ) : (
-              <div className="relative flex-1 min-h-0 rounded-xl border border-stone-200 bg-white overflow-auto touch-none">
-                {/* Dot grid background */}
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-30"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle, #c4beb5 0.7px, transparent 0.7px)",
-                    backgroundSize: "28px 28px",
-                  }}
-                />
+              <>
+                <div className="relative flex-1 min-h-0 rounded-xl border border-stone-200 bg-white overflow-auto touch-none">
+                  {/* Dot grid background */}
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-30"
+                    style={{
+                      backgroundImage:
+                        "radial-gradient(circle, #c4beb5 0.7px, transparent 0.7px)",
+                      backgroundSize: "28px 28px",
+                    }}
+                  />
 
-                {/* Tables layer */}
-                <div
-                  className="relative"
-                  style={{
-                    width: Math.max(canvasWidth, 900),
-                    height: Math.max(canvasHeight, 600),
-                    minWidth: "100%",
-                    minHeight: "100%",
-                  }}
-                >
-                  {tables.map((t) => (
-                    <TableVisual
-                      key={t.id}
-                      table={t}
-                      guests={seatedByTable.get(t.id) ?? []}
-                      readOnly={readOnly}
-                      onRemoveGuest={handleRemoveGuest}
-                      onDelete={() => handleDeleteTable(t.id, t.table_number)}
-                    />
-                  ))}
+                  {/* Tables layer */}
+                  <div
+                    className="relative"
+                    style={{
+                      width: Math.max(canvasWidth, 900),
+                      height: Math.max(canvasHeight, 600),
+                      minWidth: "100%",
+                      minHeight: "100%",
+                    }}
+                  >
+                    {tables.map((t) => (
+                      <TableVisual
+                        key={t.id}
+                        table={t}
+                        guests={seatedByTable.get(t.id) ?? []}
+                        readOnly={readOnly}
+                        onRemoveGuest={handleRemoveGuest}
+                        onDelete={() => handleDeleteTable(t.id, t.table_number)}
+                      />
+                    ))}
+                  </div>
                 </div>
 
-                {/* Floating summary bar */}
-                {tables.length > 0 && (
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-white/90 backdrop-blur-sm border border-stone-200 rounded-full shadow-lg px-4 py-2 text-xs text-ink-500">
-                    <span className="font-medium text-ink-700">
-                      {tables.length} {tables.length === 1 ? "table" : "tables"}
-                    </span>
-                    <span className="text-ink-300">·</span>
-                    <span>
-                      <span className="font-medium text-ink-700">{totalSeated}</span>
-                      /
-                      <span className="font-medium text-ink-700">{totalCapacity}</span>
-                      {" seats"}
-                    </span>
-                    <span className="text-ink-300">·</span>
-                    <span>
-                      <span
-                        className={cn(
-                          "font-medium",
-                          unassigned.length > 0
-                            ? "text-bordeaux-600"
-                            : "text-success-600",
-                        )}
-                      >
-                        {unassigned.length} remaining
-                      </span>
-                    </span>
-                  </div>
-                )}
-              </div>
+                {/* Summary bar — docked below the canvas so it never
+                    overlaps tables as the layout grows taller */}
+                <div className="flex-shrink-0 flex items-center gap-3 mt-3 px-2 text-xs text-ink-500">
+                  <span className="font-medium text-ink-700">
+                    {tables.length} {tables.length === 1 ? "table" : "tables"}
+                  </span>
+                  <span className="text-ink-300">·</span>
+                  <span>
+                    <span className="font-medium text-ink-700">{totalSeated}</span>
+                    /
+                    <span className="font-medium text-ink-700">{totalCapacity}</span>
+                    {" seats"}
+                  </span>
+                  <span className="text-ink-300">·</span>
+                  <span
+                    className={cn(
+                      "font-medium",
+                      unassigned.length > 0
+                        ? "text-bordeaux-600"
+                        : "text-success-600",
+                    )}
+                  >
+                    {unassigned.length} remaining
+                  </span>
+                </div>
+              </>
             )}
 
             {isPending && (
