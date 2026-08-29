@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Papa from "papaparse";
 import {
   Plus,
-  Search,
   Users,
   Upload,
   Pencil,
@@ -13,6 +12,7 @@ import {
   CheckCheck,
   XCircle,
   Clock,
+  FileDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
@@ -26,7 +26,11 @@ import {
   saveGuest,
   deleteGuest,
   importGuests,
+  generateCatererSummary,
 } from "@/app/(app)/guests/actions";
+import { GuestFilters } from "./GuestFilters";
+import { GuestGroups } from "./GuestGroups";
+import { GuestProfile, type GuestDetail } from "./GuestProfile";
 
 export interface GuestView {
   id: string;
@@ -37,35 +41,55 @@ export interface GuestView {
   side: string | null;
   token: string | null;
   rsvpStatus: string;
+  group_id: string | null;
+  group_name: string | null;
+  table_id: string | null;
+  table_name: string | null;
+  address: string | null;
+  age_group: string | null;
+  allergies: string[] | null;
+  meal_preference: string | null;
+  notes: string | null;
+  is_child: boolean | null;
+  thank_you_sent: boolean | null;
+  thank_you_sent_at: string | null;
 }
 
 export function GuestsView({
   guests,
+  groups,
+  tables,
   readOnly = false,
   appUrl,
 }: {
   guests: GuestView[];
+  groups: Array<{ id: string; name: string; count: number }>;
+  tables: Array<{ id: string; label: string }>;
   readOnly?: boolean;
   appUrl?: string;
 }) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [groupFilter, setGroupFilter] = useState("all");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<GuestView | null>(null);
   const [showImport, setShowImport] = useState(false);
+  const [profileGuest, setProfileGuest] = useState<GuestDetail | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
   const { toast } = useToast();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return guests.filter((g) => {
       if (statusFilter !== "all" && g.rsvpStatus !== statusFilter) return false;
+      if (groupFilter !== "all" && g.group_id !== groupFilter) return false;
       if (!q) return true;
       return (
         `${g.first_name} ${g.last_name}`.toLowerCase().includes(q) ||
         (g.email ?? "").toLowerCase().includes(q)
       );
     });
-  }, [guests, query, statusFilter]);
+  }, [guests, query, statusFilter, groupFilter]);
 
   const stats = useMemo(() => {
     let attending = 0;
@@ -82,14 +106,64 @@ export function GuestsView({
     };
   }, [guests]);
 
+  function toDetail(g: GuestView): GuestDetail {
+    return {
+      id: g.id,
+      first_name: g.first_name,
+      last_name: g.last_name,
+      email: g.email,
+      phone: g.phone,
+      address: g.address,
+      side: g.side,
+      group_id: g.group_id,
+      group_name: g.group_name,
+      table_id: g.table_id,
+      table_name: g.table_name,
+      rsvpStatus: g.rsvpStatus,
+      meal_preference: g.meal_preference,
+      allergies: g.allergies ?? [],
+      is_child: g.is_child,
+      age_group: g.age_group,
+      thank_you_sent: g.thank_you_sent,
+      thank_you_sent_at: g.thank_you_sent_at,
+      notes: g.notes,
+    };
+  }
+
+  async function handleSummary() {
+    setSummaryLoading(true);
+    try {
+      const result = await generateCatererSummary();
+      if ("error" in result) {
+        toast("error", result.error);
+        return;
+      }
+      const a = document.createElement("a");
+      a.href = result.pdfDataUrl;
+      a.download = "caterer-summary.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } finally {
+      setSummaryLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <h1 className="font-heading text-2xl lg:text-3xl font-bold text-ink-700">
           Guests
         </h1>
         {!readOnly && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant="secondary"
+              onClick={handleSummary}
+              loading={summaryLoading}
+            >
+              <FileDown className="w-4 h-4" /> Caterer Summary
+            </Button>
             <Button variant="secondary" onClick={() => setShowImport(true)}>
               <Upload className="w-4 h-4" /> Import CSV
             </Button>
@@ -123,29 +197,24 @@ export function GuestsView({
         />
       </div>
 
+      {/* Groups */}
+      <GuestGroups
+        groups={groups}
+        activeGroupId={groupFilter === "all" ? null : groupFilter}
+        onSelect={(id) => setGroupFilter(id ?? "all")}
+        readOnly={readOnly}
+      />
+
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -tranink-y-1/2 w-4 h-4 text-ink-400" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search guests…"
-            className="w-full min-h-[44px] pl-10 pr-3 border border-ink-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux-500"
-          />
-        </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="min-h-[44px] px-3 border border-ink-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-bordeaux-500"
-          aria-label="Filter by RSVP status"
-        >
-          <option value="all">All statuses</option>
-          <option value="attending">Attending</option>
-          <option value="declined">Declined</option>
-          <option value="pending">Pending</option>
-        </select>
-      </div>
+      <GuestFilters
+        query={query}
+        onQueryChange={setQuery}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
+        groupFilter={groupFilter}
+        onGroupChange={setGroupFilter}
+        groups={groups}
+      />
 
       {/* Table */}
       {filtered.length === 0 ? (
@@ -168,7 +237,7 @@ export function GuestsView({
             />
           ) : (
             <EmptyState
-              icon={Search}
+              icon={Users}
               title="No matches"
               description="Try a different search or filter."
             />
@@ -177,13 +246,22 @@ export function GuestsView({
       ) : (
         <ul className="bg-white rounded-lg border border-stone-200 divide-y divide-stone-100">
           {filtered.map((g) => (
-            <li key={g.id} className="flex items-center gap-3 px-4 py-3">
+            <li
+              key={g.id}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-ink-50 cursor-pointer"
+              onClick={() => setProfileGuest(toDetail(g))}
+            >
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-ink-700 truncate">
                   {g.first_name} {g.last_name}
                   {g.side && g.side !== "both" && (
                     <span className="ml-2 text-xs text-ink-400 capitalize">
                       ({g.side}&apos;s side)
+                    </span>
+                  )}
+                  {g.group_name && (
+                    <span className="ml-2 text-xs text-bordeaux-600">
+                      {g.group_name}
                     </span>
                   )}
                 </p>
@@ -201,7 +279,10 @@ export function GuestsView({
                 {g.rsvpStatus}
               </Badge>
               {!readOnly && (
-                <div className="flex gap-1 flex-shrink-0">
+                <div
+                  className="flex gap-1 flex-shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     onClick={() => {
                       if (!g.token) return;
@@ -260,6 +341,15 @@ export function GuestsView({
         guest={editing}
       />
       <CsvImportModal open={showImport} onClose={() => setShowImport(false)} />
+      {profileGuest && (
+        <GuestProfile
+          guest={profileGuest}
+          groups={groups}
+          tables={tables}
+          readOnly={readOnly}
+          onClose={() => setProfileGuest(null)}
+        />
+      )}
     </div>
   );
 }
