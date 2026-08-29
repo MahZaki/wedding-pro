@@ -256,6 +256,66 @@ export type Database = {
           },
         ]
       }
+      gifts: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          gift_type: string
+          giver_name: string | null
+          guest_id: string | null
+          id: string
+          notes: string | null
+          received_at: string | null
+          thank_you_sent: boolean | null
+          thank_you_sent_at: string | null
+          value: number | null
+          wedding_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          gift_type: string
+          giver_name?: string | null
+          guest_id?: string | null
+          id?: string
+          notes?: string | null
+          received_at?: string | null
+          thank_you_sent?: boolean | null
+          thank_you_sent_at?: string | null
+          value?: number | null
+          wedding_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          gift_type?: string
+          giver_name?: string | null
+          guest_id?: string | null
+          id?: string
+          notes?: string | null
+          received_at?: string | null
+          thank_you_sent?: boolean | null
+          thank_you_sent_at?: string | null
+          value?: number | null
+          wedding_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gifts_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gifts_wedding_id_fkey"
+            columns: ["wedding_id"]
+            isOneToOne: false
+            referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_groups: {
         Row: {
           created_at: string | null

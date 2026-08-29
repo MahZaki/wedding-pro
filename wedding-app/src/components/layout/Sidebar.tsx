@@ -10,6 +10,7 @@ import {
   Store,
   Clock,
   Table2,
+  Gift,
   Settings,
   Menu,
   X,
@@ -24,6 +25,7 @@ const navItems = [
   { href: "/vendors", label: "Vendors", icon: Store },
   { href: "/timeline", label: "Timeline", icon: Clock },
   { href: "/seating", label: "Seating", icon: Table2 },
+  { href: "/gifts", label: "Gifts", icon: Gift },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

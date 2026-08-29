@@ -11,6 +11,7 @@ import {
   updateGuestProfile,
   type GuestProfileInput,
 } from "@/app/(app)/guests/actions";
+import { GuestGifts } from "@/components/gifts/GuestGifts";
 
 export interface GuestDetail {
   id: string;
@@ -290,11 +291,13 @@ export function GuestProfile({
             </Field>
           </Section>
 
-          {/* Gifts & Thank You (Epic 4 placeholder) */}
+          {/* Gifts & Thank You */}
           <Section title="Gifts & Thank You">
-            <p className="text-sm text-ink-400">
-              Gift and thank-you tracking is coming soon.
-            </p>
+            <GuestGifts
+              guestId={guest.id}
+              guestName={`${guest.first_name} ${guest.last_name}`.trim()}
+              readOnly={readOnly}
+            />
             <Field>
               <CheckboxRow
                 label="Thank-you sent"
