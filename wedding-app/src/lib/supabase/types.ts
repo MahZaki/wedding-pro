@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   graphql_public: {
     Tables: {
@@ -256,6 +256,35 @@ export type Database = {
           },
         ]
       }
+      guest_groups: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          wedding_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          wedding_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          wedding_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_groups_wedding_id_fkey"
+            columns: ["wedding_id"]
+            isOneToOne: false
+            referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guests: {
         Row: {
           address: string | null
@@ -340,35 +369,6 @@ export type Database = {
           },
           {
             foreignKeyName: "guests_wedding_id_fkey"
-            columns: ["wedding_id"]
-            isOneToOne: false
-            referencedRelation: "weddings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      guest_groups: {
-        Row: {
-          created_at: string | null
-          id: string
-          name: string
-          wedding_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          name: string
-          wedding_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          name?: string
-          wedding_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "guest_groups_wedding_id_fkey"
             columns: ["wedding_id"]
             isOneToOne: false
             referencedRelation: "weddings"
@@ -630,6 +630,7 @@ export type Database = {
         Row: {
           ceremony_location: string | null
           created_at: string | null
+          created_by: string | null
           currency: string | null
           guest_count_estimate: number | null
           id: string
@@ -647,6 +648,7 @@ export type Database = {
         Insert: {
           ceremony_location?: string | null
           created_at?: string | null
+          created_by?: string | null
           currency?: string | null
           guest_count_estimate?: number | null
           id?: string
@@ -664,6 +666,7 @@ export type Database = {
         Update: {
           ceremony_location?: string | null
           created_at?: string | null
+          created_by?: string | null
           currency?: string | null
           guest_count_estimate?: number | null
           id?: string
@@ -685,7 +688,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_write_wedding: { Args: { p_wedding_id: string }; Returns: boolean }
+      is_wedding_member: { Args: { p_wedding_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
