@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
-import { addExpense, expenseSchema } from "@/app/(app)/budget/actions";
+import { addExpense } from "@/app/(app)/budget/actions";
+import { expenseSchema } from "@/lib/schemas/budget";
 
 export interface ExpenseView {
   id: string;

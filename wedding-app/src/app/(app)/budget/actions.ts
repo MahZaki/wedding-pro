@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireWedding } from "@/lib/wedding";
 import type { ActionResult } from "@/lib/action-result";
+import { contributionSchema, expenseSchema } from "@/lib/schemas/budget";
 
 const updateItemSchema = z.object({
   id: z.string().uuid(),
@@ -96,27 +97,6 @@ export async function addPaymentSchedule(input: unknown): Promise<ActionResult> 
   return { ok: true };
 }
 
-const CONTRIBUTORS = [
-  "Couple",
-  "Bride Parents",
-  "Groom Parents",
-  "Other",
-] as const;
-
-export const contributionSchema = z.object({
-  contributor: z.enum(CONTRIBUTORS, {
-    error: "Pick a contributor",
-  }),
-  label: z.string().trim().max(120).optional(),
-  amount: z.coerce.number().min(0.01, "Enter an amount"),
-  received: z.boolean().optional(),
-  received_at: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date")
-    .nullable()
-    .optional(),
-});
-
 export async function addContribution(input: unknown): Promise<ActionResult> {
   const parsed = contributionSchema.safeParse(input);
   if (!parsed.success) {
@@ -143,20 +123,6 @@ export async function addContribution(input: unknown): Promise<ActionResult> {
   revalidatePath("/budget");
   return { ok: true };
 }
-
-const EXPENSE_PAYERS = ["couple", "partner1", "partner2", "family"] as const;
-
-export const expenseSchema = z.object({
-  description: z.string().trim().min(1, "Description is required").max(160),
-  amount: z.coerce.number().min(0.01, "Enter an amount"),
-  paid_by: z.enum(EXPENSE_PAYERS).optional(),
-  paid_at: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date")
-    .nullable()
-    .optional(),
-  budget_item_id: z.string().uuid().nullable().optional(),
-});
 
 export async function addExpense(input: unknown): Promise<ActionResult> {
   const parsed = expenseSchema.safeParse(input);

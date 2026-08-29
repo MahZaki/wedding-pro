@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
-import { addContribution, contributionSchema } from "@/app/(app)/budget/actions";
+import { addContribution } from "@/app/(app)/budget/actions";
+import { contributionSchema } from "@/lib/schemas/budget";
 
 export interface ContributionView {
   id: string;

@@ -9,11 +9,8 @@ import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
-import {
-  setupSchema,
-  saveSetup,
-  completeSetup,
-} from "@/app/(app)/setup/actions";
+import { saveSetup, completeSetup } from "@/app/(app)/setup/actions";
+import { setupSchema } from "@/lib/schemas/setup";
 import { CoupleDetails } from "./steps/CoupleDetails";
 import { WeddingDetails } from "./steps/WeddingDetails";
 import { BudgetGoal } from "./steps/BudgetGoal";
