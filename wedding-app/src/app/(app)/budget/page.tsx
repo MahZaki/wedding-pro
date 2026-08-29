@@ -2,6 +2,10 @@ import { requireWedding } from "@/lib/wedding";
 import { createClient } from "@/lib/supabase/server";
 import { BudgetRing } from "@/components/budget/BudgetRing";
 import { CategoryCard } from "@/components/budget/CategoryCard";
+import { BudgetSummary } from "@/components/budget/BudgetSummary";
+import { BudgetAlerts } from "@/components/budget/BudgetAlerts";
+import { ContributionTracker } from "@/components/budget/ContributionTracker";
+import { ExpenseTracker } from "@/components/budget/ExpenseTracker";
 import { formatMoney } from "@/lib/utils";
 import type { Database } from "@/lib/supabase/types";
 
@@ -43,6 +47,27 @@ export default async function BudgetPage() {
     );
   }
 
+  const { data: contributions } = await supabase
+    .from("contributions")
+    .select("*")
+    .eq("wedding_id", wedding.id)
+    .order("created_at");
+
+  const { data: expenses } = await supabase
+    .from("expenses")
+    .select(
+      `*,
+       budget_items(name)`
+    )
+    .eq("wedding_id", wedding.id)
+    .order("created_at");
+
+  const expenseRows = (expenses ?? []) as Array<
+    Database["public"]["Tables"]["expenses"]["Row"] & {
+      budget_items: Array<{ name: string }> | null;
+    }
+  >;
+
   const categories = (data ?? []) as unknown as CategoryWithItems[];
 
   const totalAllocated = categories.reduce(
@@ -55,10 +80,29 @@ export default async function BudgetPage() {
       c.budget_items.reduce((a, i) => a + Number(i.estimated_cost ?? 0), 0),
     0
   );
-  const totalActual = categories.reduce(
+  const totalSpent = categories.reduce(
     (acc, c) =>
       acc + c.budget_items.reduce((a, i) => a + Number(i.actual_cost ?? 0), 0),
     0
+  );
+
+  const totalContributed = (contributions ?? []).reduce(
+    (acc, c) => acc + (c.received ? Number(c.amount) : 0),
+    0
+  );
+
+  const alertCategories = categories.map((c) => ({
+    id: c.id,
+    name: c.name,
+    allocated_amount: Number(c.allocated_amount),
+    actual: c.budget_items.reduce(
+      (a, i) => a + Number(i.actual_cost ?? 0),
+      0
+    ),
+  }));
+
+  const budgetItems = categories.flatMap((c) =>
+    c.budget_items.map((i) => ({ id: i.id, name: i.name }))
   );
 
   return (
@@ -67,11 +111,25 @@ export default async function BudgetPage() {
         Budget
       </h1>
 
+      {/* Alerts */}
+      <BudgetAlerts
+        targetBudget={Number(wedding.target_budget)}
+        totalSpent={totalSpent}
+        categories={alertCategories}
+      />
+
       {/* Summary */}
+      <BudgetSummary
+        totalBudget={Number(wedding.target_budget)}
+        totalContributed={totalContributed}
+        totalSpent={totalSpent}
+      />
+
+      {/* Ring + allocation overview */}
       <div className="bg-white rounded-lg border border-stone-200 p-5 lg:p-6">
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <BudgetRing
-            spent={totalActual}
+            spent={totalSpent}
             total={Number(wedding.target_budget)}
             size={140}
           />
@@ -94,21 +152,42 @@ export default async function BudgetPage() {
             </div>
             <div>
               <p className="text-xs font-medium text-ink-400 uppercase">
-                Actual spend
+                Estimated
               </p>
-              <p
-                className={`font-heading text-xl font-bold ${
-                  totalActual > totalEstimated
-                    ? "text-error-600"
-                    : "text-success-600"
-                }`}
-              >
-                {formatMoney(totalActual)}
+              <p className="font-heading text-xl font-bold text-ink-700">
+                {formatMoney(totalEstimated)}
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Contributions */}
+      <ContributionTracker
+        contributions={(contributions ?? []).map((c) => ({
+          id: c.id,
+          contributor: c.contributor,
+          label: c.label ?? "",
+          amount: Number(c.amount),
+          received: c.received ?? false,
+          received_at: c.received_at,
+        }))}
+        readOnly={role === "viewer"}
+      />
+
+      {/* Expenses */}
+      <ExpenseTracker
+        expenses={expenseRows.map((e) => ({
+          id: e.id,
+          description: e.description,
+          amount: Number(e.amount),
+          paid_by: e.paid_by ?? "",
+          paid_at: e.paid_at,
+          budget_item_name: e.budget_items?.[0]?.name ?? null,
+        }))}
+        budgetItems={budgetItems}
+        readOnly={role === "viewer"}
+      />
 
       {/* Categories */}
       <div className="space-y-4">

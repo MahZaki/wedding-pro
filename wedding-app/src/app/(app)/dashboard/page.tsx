@@ -22,11 +22,24 @@ export default async function DashboardPage() {
   // Budget summary
   const { data: categories } = await supabase
     .from("budget_categories")
-    .select("allocated_amount")
+    .select(
+      `allocated_amount,
+       budget_items(actual_cost)`
+    )
     .eq("wedding_id", wedding.id);
 
   const allocated =
     categories?.reduce((acc, c) => acc + Number(c.allocated_amount), 0) ?? 0;
+
+  const overBudgetCount =
+    categories?.filter((c) => {
+      const actual = (c.budget_items ?? []).reduce(
+        (a: number, i) =>
+          a + (i?.actual_cost === null ? 0 : Number(i?.actual_cost ?? 0)),
+        0
+      );
+      return actual > Number(c.allocated_amount);
+    }).length ?? 0;
 
   // Guest stats (attending / declined / pending) via rsvps join
   const { data: guests } = await supabase
@@ -99,6 +112,12 @@ export default async function DashboardPage() {
           <p className="text-xs text-ink-400 mt-1">
             of {formatMoney(Number(wedding.target_budget))} planned
           </p>
+          {overBudgetCount > 0 && (
+            <p className="text-xs font-semibold text-error-600 mt-2">
+              {overBudgetCount} categor{overBudgetCount === 1 ? "y" : "ies"} over
+              budget
+            </p>
+          )}
         </Link>
 
         {/* Guests card */}

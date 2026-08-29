@@ -96,6 +96,95 @@ export async function addPaymentSchedule(input: unknown): Promise<ActionResult> 
   return { ok: true };
 }
 
+const CONTRIBUTORS = [
+  "Couple",
+  "Bride Parents",
+  "Groom Parents",
+  "Other",
+] as const;
+
+export const contributionSchema = z.object({
+  contributor: z.enum(CONTRIBUTORS, {
+    error: "Pick a contributor",
+  }),
+  label: z.string().trim().max(120).optional(),
+  amount: z.coerce.number().min(0.01, "Enter an amount"),
+  received: z.boolean().optional(),
+  received_at: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date")
+    .nullable()
+    .optional(),
+});
+
+export async function addContribution(input: unknown): Promise<ActionResult> {
+  const parsed = contributionSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  const { wedding, role } = await requireWedding();
+  if (role === "viewer") return { error: "Viewers can't add contributions." };
+  const supabase = await createClient();
+
+  const { received, received_at, label, ...rest } = parsed.data;
+  const { error } = await supabase.from("contributions").insert({
+    ...rest,
+    wedding_id: wedding.id,
+    label: label || null,
+    received: received ?? false,
+    received_at: received ? received_at || null : null,
+  });
+
+  if (error) {
+    console.error("addContribution:", error);
+    return { error: "Failed to add contribution. Please try again." };
+  }
+
+  revalidatePath("/budget");
+  return { ok: true };
+}
+
+const EXPENSE_PAYERS = ["couple", "partner1", "partner2", "family"] as const;
+
+export const expenseSchema = z.object({
+  description: z.string().trim().min(1, "Description is required").max(160),
+  amount: z.coerce.number().min(0.01, "Enter an amount"),
+  paid_by: z.enum(EXPENSE_PAYERS).optional(),
+  paid_at: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date")
+    .nullable()
+    .optional(),
+  budget_item_id: z.string().uuid().nullable().optional(),
+});
+
+export async function addExpense(input: unknown): Promise<ActionResult> {
+  const parsed = expenseSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  const { wedding, role } = await requireWedding();
+  if (role === "viewer") return { error: "Viewers can't add expenses." };
+  const supabase = await createClient();
+
+  const { paid_at, paid_by, budget_item_id, ...rest } = parsed.data;
+  const { error } = await supabase.from("expenses").insert({
+    ...rest,
+    wedding_id: wedding.id,
+    paid_at: paid_at || null,
+    paid_by: paid_by || null,
+    budget_item_id: budget_item_id || null,
+  });
+
+  if (error) {
+    console.error("addExpense:", error);
+    return { error: "Failed to add expense. Please try again." };
+  }
+
+  revalidatePath("/budget");
+  return { ok: true };
+}
+
 const markPaidSchema = z.object({ id: z.string().uuid() });
 
 export async function markPaymentPaid(input: unknown): Promise<ActionResult> {
