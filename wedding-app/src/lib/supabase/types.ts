@@ -460,31 +460,55 @@ export type Database = {
       }
       weddings: {
         Row: {
+          ceremony_location: string | null
           created_at: string | null
+          currency: string | null
           guest_count_estimate: number | null
           id: string
+          partner1_name: string | null
+          partner2_name: string | null
+          reception_location: string | null
           region_tier: string | null
+          setup_complete: boolean | null
           target_budget: number
+          timezone: string | null
           title: string
           wedding_date: string | null
+          wedding_style: string | null
         }
         Insert: {
+          ceremony_location?: string | null
           created_at?: string | null
+          currency?: string | null
           guest_count_estimate?: number | null
           id?: string
+          partner1_name?: string | null
+          partner2_name?: string | null
+          reception_location?: string | null
           region_tier?: string | null
+          setup_complete?: boolean | null
           target_budget: number
+          timezone?: string | null
           title: string
           wedding_date?: string | null
+          wedding_style?: string | null
         }
         Update: {
+          ceremony_location?: string | null
           created_at?: string | null
+          currency?: string | null
           guest_count_estimate?: number | null
           id?: string
+          partner1_name?: string | null
+          partner2_name?: string | null
+          reception_location?: string | null
           region_tier?: string | null
+          setup_complete?: boolean | null
           target_budget?: number
+          timezone?: string | null
           title?: string
           wedding_date?: string | null
+          wedding_style?: string | null
         }
         Relationships: []
       }
