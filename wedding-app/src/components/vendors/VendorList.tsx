@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Store, Pencil, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Store,
+  Pencil,
+  Trash2,
+  Star,
+  Check,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
@@ -10,7 +18,25 @@ import { useToast } from "@/components/ui/Toast";
 import {
   saveVendor,
   deleteVendor,
+  updateVendorRating,
+  bookVendor,
 } from "@/app/(app)/vendors/actions";
+import {
+  VendorStatusBadge,
+  type VendorStatus,
+} from "./VendorStatusBadge";
+import { VendorDocuments } from "./VendorDocuments";
+import {
+  VendorComparison,
+  type VendorCompareView,
+} from "./VendorComparison";
+
+export interface VendorDocumentView {
+  id: string;
+  name: string;
+  doc_type: string | null;
+  uploaded_at: string | null;
+}
 
 export interface VendorView {
   id: string;
@@ -21,6 +47,11 @@ export interface VendorView {
   phone: string | null;
   website: string | null;
   notes: string | null;
+  status: VendorStatus;
+  rating: number | null;
+  instagram: string | null;
+  quote_amount: number | null;
+  documents: VendorDocumentView[];
 }
 
 const CATEGORY_OPTIONS = [
@@ -38,6 +69,16 @@ const CATEGORY_OPTIONS = [
   "Other",
 ].map((c) => ({ value: c, label: c }));
 
+const STATUS_FILTERS: Array<{ value: VendorStatus | "all"; label: string }> = [
+  { value: "all", label: "All" },
+  { value: "researching", label: "Researching" },
+  { value: "contacted", label: "Contacted" },
+  { value: "quoted", label: "Quoted" },
+  { value: "shortlisted", label: "Shortlisted" },
+  { value: "booked", label: "Booked" },
+  { value: "paid", label: "Paid" },
+];
+
 export function VendorList({
   vendors,
   readOnly = false,
@@ -47,11 +88,60 @@ export function VendorList({
 }) {
   const [editing, setEditing] = useState<VendorView | null>(null);
   const [creating, setCreating] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<VendorStatus | "all">("all");
+  const [comparing, setComparing] = useState<string[]>([]);
+  const { toast } = useToast();
 
-  const grouped = vendors.reduce<Record<string, VendorView[]>>((acc, v) => {
+  const filtered =
+    statusFilter === "all"
+      ? vendors
+      : vendors.filter((v) => v.status === statusFilter);
+
+  const grouped = filtered.reduce<Record<string, VendorView[]>>((acc, v) => {
     (acc[v.category] ??= []).push(v);
     return acc;
   }, {});
+
+  function toggleCompare(id: string, category: string) {
+    const current = comparing
+      .map((cid) => vendors.find((v) => v.id === cid)!)
+      .filter(Boolean);
+
+    if (comparing.includes(id)) {
+      setComparing(comparing.filter((cid) => cid !== id));
+      return;
+    }
+
+    const selectedCategory = current[0]?.category;
+    if (selectedCategory && selectedCategory !== category) {
+      toast("warning", "You can only compare vendors in the same category.");
+      return;
+    }
+    if (comparing.length >= 3) {
+      toast("warning", "You can compare up to 3 vendors.");
+      return;
+    }
+    setComparing([...comparing, id]);
+  }
+
+  const comparedVendors: VendorCompareView[] = comparing
+    .map((cid) => vendors.find((v) => v.id === cid))
+    .filter((v): v is VendorView => !!v)
+    .map((v) => ({
+      id: v.id,
+      business_name: v.business_name,
+      status: v.status,
+      rating: v.rating,
+      website: v.website,
+      notes: v.notes,
+      quote_amount: v.quote_amount,
+    }));
+
+  async function handleBooked(id: string) {
+    const result = await bookVendor({ id });
+    if (result?.error) toast("error", result.error);
+    else toast("success", "Vendor booked");
+  }
 
   return (
     <div className="space-y-6">
@@ -70,18 +160,46 @@ export function VendorList({
         Your private CRM — vendor details are never shared or sold.
       </p>
 
-      {vendors.length === 0 ? (
+      {vendors.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          {STATUS_FILTERS.map((f) => (
+            <button
+              key={f.value}
+              type="button"
+              onClick={() => setStatusFilter(f.value)}
+              className={cn(
+                "flex-shrink-0 min-h-[36px] px-3 rounded-full text-sm font-medium transition-colors border",
+                statusFilter === f.value
+                  ? "bg-bordeaux-500 text-white border-bordeaux-500"
+                  : "bg-white text-ink-600 border-ink-200 hover:bg-ink-50"
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
         <div className="bg-white rounded-lg border border-stone-200">
-          <EmptyState
-            icon={Store}
-            title="No vendors yet"
-            description="Add the vendors you're working with to keep all contacts and notes in one private place."
-            action={
-              !readOnly ? (
-                <Button onClick={() => setCreating(true)}>Add Vendor</Button>
-              ) : undefined
-            }
-          />
+          {vendors.length === 0 ? (
+            <EmptyState
+              icon={Store}
+              title="No vendors yet"
+              description="Add the vendors you're working with to keep all contacts and notes in one private place."
+              action={
+                !readOnly ? (
+                  <Button onClick={() => setCreating(true)}>Add Vendor</Button>
+                ) : undefined
+              }
+            />
+          ) : (
+            <EmptyState
+              icon={Store}
+              title="No vendors in this status"
+              description="Try a different filter."
+            />
+          )}
         </div>
       ) : (
         Object.entries(grouped).map(([category, list]) => (
@@ -99,6 +217,8 @@ export function VendorList({
                   vendor={v}
                   readOnly={readOnly}
                   onEdit={() => setEditing(v)}
+                  comparing={comparing.includes(v.id)}
+                  onToggleCompare={() => toggleCompare(v.id, v.category)}
                 />
               ))}
             </div>
@@ -114,6 +234,12 @@ export function VendorList({
         }}
         vendor={editing}
       />
+
+      <VendorComparison
+        compared={comparedVendors}
+        onClear={() => setComparing([])}
+        onBooked={handleBooked}
+      />
     </div>
   );
 }
@@ -122,10 +248,14 @@ function VendorCard({
   vendor,
   readOnly,
   onEdit,
+  comparing,
+  onToggleCompare,
 }: {
   vendor: VendorView;
   readOnly: boolean;
   onEdit: () => void;
+  comparing: boolean;
+  onToggleCompare: () => void;
 }) {
   const { toast } = useToast();
 
@@ -136,6 +266,11 @@ function VendorCard({
       if (result?.error) toast("error", result.error);
       else toast("success", "Vendor deleted");
     })();
+  }
+
+  async function setRating(rating: number) {
+    const result = await updateVendorRating({ id: vendor.id, rating });
+    if (result?.error) toast("error", result.error);
   }
 
   return (
@@ -149,8 +284,22 @@ function VendorCard({
             <p className="text-xs text-ink-400">{vendor.contact_name}</p>
           )}
         </div>
-        {!readOnly && (
-          <div className="flex flex-shrink-0 gap-1">
+        <div className="flex flex-shrink-0 items-center gap-1">
+          {!readOnly && (
+            <button
+              onClick={onToggleCompare}
+              aria-label={`Compare ${vendor.business_name}`}
+              className={cn(
+                "min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg",
+                comparing
+                  ? "text-bordeaux-500 bg-bordeaux-100"
+                  : "text-ink-300 hover:text-bordeaux-600 hover:bg-ink-100"
+              )}
+            >
+              <Check className="w-4 h-4" />
+            </button>
+          )}
+          {!readOnly && (
             <button
               onClick={onEdit}
               aria-label={`Edit ${vendor.business_name}`}
@@ -158,6 +307,8 @@ function VendorCard({
             >
               <Pencil className="w-4 h-4" />
             </button>
+          )}
+          {!readOnly && (
             <button
               onClick={remove}
               aria-label={`Delete ${vendor.business_name}`}
@@ -165,9 +316,49 @@ function VendorCard({
             >
               <Trash2 className="w-4 h-4" />
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
+      <div className="mt-3 flex items-center gap-2">
+        <VendorStatusBadge
+          vendorId={vendor.id}
+          status={vendor.status}
+          readOnly={readOnly}
+        />
+        <div className="ml-auto flex items-center gap-0.5">
+          {!readOnly ? (
+            [1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                aria-label={`Rate ${n} of 5 stars`}
+                onClick={() => setRating(n)}
+                className={cn(
+                  "min-w-[28px] min-h-[28px] flex items-center justify-center",
+                  (vendor.rating ?? 0) >= n
+                    ? "text-warning-700"
+                    : "text-ink-200 hover:text-warning-300"
+                )}
+              >
+                <Star className="w-4 h-4 fill-current" />
+              </button>
+            ))
+          ) : (
+            <span className="text-sm text-warning-700">
+              {"★".repeat(vendor.rating ?? 0)}
+              <span className="text-ink-200">
+                {"★".repeat(5 - (vendor.rating ?? 0))}
+              </span>
+            </span>
+          )}
+        </div>
+      </div>
+
+      {vendor.instagram && (
+        <p className="mt-2 text-sm text-ink-500">@{vendor.instagram}</p>
+      )}
+
       <div className="mt-2 space-y-0.5 text-sm text-ink-500">
         {vendor.email && <p>{vendor.email}</p>}
         {vendor.phone && <p>{vendor.phone}</p>}
@@ -186,9 +377,16 @@ function VendorCard({
           </a>
         )}
       </div>
+
       {vendor.notes && (
         <p className="mt-2 text-xs text-ink-400 line-clamp-2">{vendor.notes}</p>
       )}
+
+      <VendorDocuments
+        vendorId={vendor.id}
+        documents={vendor.documents}
+        readOnly={readOnly}
+      />
     </div>
   );
 }
@@ -208,11 +406,14 @@ function VendorFormModal({
   const [email, setEmail] = useState(vendor?.email ?? "");
   const [phone, setPhone] = useState(vendor?.phone ?? "");
   const [website, setWebsite] = useState(vendor?.website ?? "");
+  const [instagram, setInstagram] = useState(vendor?.instagram ?? "");
+  const [quoteAmount, setQuoteAmount] = useState(
+    vendor?.quote_amount != null ? String(vendor.quote_amount) : ""
+  );
   const [notes, setNotes] = useState(vendor?.notes ?? "");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  // Reset fields when a different vendor is opened
   const [lastKey, setLastKey] = useState("");
   const key = `${open}-${vendor?.id ?? "new"}`;
   if (key !== lastKey) {
@@ -223,6 +424,8 @@ function VendorFormModal({
     setEmail(vendor?.email ?? "");
     setPhone(vendor?.phone ?? "");
     setWebsite(vendor?.website ?? "");
+    setInstagram(vendor?.instagram ?? "");
+    setQuoteAmount(vendor?.quote_amount != null ? String(vendor.quote_amount) : "");
     setNotes(vendor?.notes ?? "");
   }
 
@@ -241,6 +444,8 @@ function VendorFormModal({
       email,
       phone,
       website,
+      instagram,
+      quote_amount: quoteAmount === "" ? null : Number(quoteAmount),
       notes,
     });
     setLoading(false);
@@ -299,6 +504,21 @@ function VendorFormModal({
           label="Website"
           value={website}
           onChange={(e) => setWebsite(e.target.value)}
+        />
+        <Input
+          label="Instagram"
+          value={instagram}
+          onChange={(e) => setInstagram(e.target.value)}
+          placeholder="@handle"
+        />
+        <Input
+          label="Quote amount"
+          type="number"
+          min="0"
+          step="0.01"
+          value={quoteAmount}
+          onChange={(e) => setQuoteAmount(e.target.value)}
+          placeholder="0.00"
         />
         <Input
           label="Notes"

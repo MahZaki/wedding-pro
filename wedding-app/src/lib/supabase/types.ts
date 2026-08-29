@@ -541,43 +541,103 @@ export type Database = {
           },
         ]
       }
+      vendor_documents: {
+        Row: {
+          doc_type: string | null
+          id: string
+          name: string
+          storage_url: string
+          uploaded_at: string | null
+          vendor_id: string | null
+          wedding_id: string | null
+        }
+        Insert: {
+          doc_type?: string | null
+          id?: string
+          name: string
+          storage_url: string
+          uploaded_at?: string | null
+          vendor_id?: string | null
+          wedding_id?: string | null
+        }
+        Update: {
+          doc_type?: string | null
+          id?: string
+          name?: string
+          storage_url?: string
+          uploaded_at?: string | null
+          vendor_id?: string | null
+          wedding_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_documents_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_documents_wedding_id_fkey"
+            columns: ["wedding_id"]
+            isOneToOne: false
+            referencedRelation: "weddings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendors: {
         Row: {
+          booked_at: string | null
           business_name: string
           category: string
           contact_name: string | null
           contract_url: string | null
           email: string | null
           id: string
+          instagram: string | null
           notes: string | null
           parsed_contract: Json | null
           phone: string | null
+          quote_amount: number | null
+          rating: number | null
+          status: string | null
           website: string | null
           wedding_id: string | null
         }
         Insert: {
+          booked_at?: string | null
           business_name: string
           category: string
           contact_name?: string | null
           contract_url?: string | null
           email?: string | null
           id?: string
+          instagram?: string | null
           notes?: string | null
           parsed_contract?: Json | null
           phone?: string | null
+          quote_amount?: number | null
+          rating?: number | null
+          status?: string | null
           website?: string | null
           wedding_id?: string | null
         }
         Update: {
+          booked_at?: string | null
           business_name?: string
           category?: string
           contact_name?: string | null
           contract_url?: string | null
           email?: string | null
           id?: string
+          instagram?: string | null
           notes?: string | null
           parsed_contract?: Json | null
           phone?: string | null
+          quote_amount?: number | null
+          rating?: number | null
+          status?: string | null
           website?: string | null
           wedding_id?: string | null
         }
