@@ -2,16 +2,11 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireWedding } from "@/lib/wedding";
 import { Wallet, Users, CreditCard } from "lucide-react";
-import { formatMoney, cn } from "@/lib/utils";
-
-/** Today and N-days-ahead as YYYY-MM-DD (module scope: computed once per request). */
-function paymentWindow(days = 30): { from: string; to: string } {
-  const from = new Date().toISOString().split("T")[0];
-  const to = new Date(Date.now() + days * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split("T")[0];
-  return { from, to };
-}
+import { formatMoney } from "@/lib/utils";
+import { CountdownCard } from "@/components/dashboard/CountdownCard";
+import { AlertCenter } from "@/components/dashboard/AlertCenter";
+import { UpcomingPayments } from "@/components/dashboard/UpcomingPayments";
+import { RsvpProgress } from "@/components/dashboard/RsvpProgress";
 
 export const metadata = { title: "Dashboard" };
 
@@ -61,21 +56,6 @@ export default async function DashboardPage() {
     else if (status === "declined") declined++;
     else pending++;
   }
-
-  // Upcoming payments in next 30 days
-  const { from: today, to: in30 } = paymentWindow();
-
-  const { data: payments } = await supabase
-    .from("payment_schedules")
-    .select(
-      `id, amount, due_date, status,
-       budget_items ( name, budget_categories ( name ) )`
-    )
-    .neq("status", "paid")
-    .gte("due_date", today)
-    .lte("due_date", in30)
-    .order("due_date")
-    .limit(5);
 
   return (
     <div className="space-y-6">
@@ -143,7 +123,7 @@ export default async function DashboardPage() {
           </p>
         </Link>
 
-        {/* Payments card */}
+        {/* Over budget card */}
         <Link
           href="/budget"
           className="bg-white rounded-lg border border-stone-200 p-5 hover:border-bordeaux-300 transition-colors"
@@ -151,68 +131,38 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-2 text-ink-500 mb-3">
             <CreditCard className="w-4 h-4" />
             <span className="text-xs font-semibold uppercase tracking-wide">
-              Due in 30 days
+              Health
             </span>
           </div>
-          <p className="font-heading text-2xl font-bold text-ink-700">
-            {payments?.length ?? 0} payments
-          </p>
-          <p className="text-xs text-ink-400 mt-1">upcoming</p>
+          {overBudgetCount > 0 ? (
+            <>
+              <p className="font-heading text-2xl font-bold text-error-600">
+                {overBudgetCount}
+              </p>
+              <p className="text-xs text-ink-400 mt-1">
+                categor{overBudgetCount === 1 ? "y" : "ies"} over budget
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="font-heading text-2xl font-bold text-success-600">
+                On track
+              </p>
+              <p className="text-xs text-ink-400 mt-1">budget is healthy</p>
+            </>
+          )}
         </Link>
       </div>
 
-      {/* Upcoming payments list */}
-      <section>
-        <h2 className="font-heading text-lg font-semibold text-ink-700 mb-3">
-          Upcoming payments
-        </h2>
-        {payments && payments.length > 0 ? (
-          <ul className="bg-white rounded-lg border border-stone-200 divide-y divide-stone-100">
-            {payments.map((p) => {
-              const item = p.budget_items as unknown as {
-                name?: string;
-                budget_categories?: { name?: string };
-              } | null;
-              const overdue = p.due_date < today;
-              return (
-                <li
-                  key={p.id}
-                  className="flex items-center justify-between px-4 py-3"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-ink-700 truncate">
-                      {item?.name ?? "Payment"}
-                    </p>
-                    <p className="text-xs text-ink-400">
-                      {item?.budget_categories?.name} · due{" "}
-                      {new Date(p.due_date + "T00:00:00").toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="text-right flex-shrink-0 ml-3">
-                    <p className="text-sm font-semibold text-ink-700">
-                      {formatMoney(Number(p.amount))}
-                    </p>
-                    <span
-                      className={cn(
-                        "inline-flex px-2 py-0.5 rounded-full text-xs font-medium",
-                        overdue
-                          ? "bg-error-100 text-error-700"
-                          : "bg-warning-100 text-warning-700"
-                      )}
-                    >
-                      {overdue ? "Overdue" : p.status ?? "pending"}
-                    </span>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className="bg-white rounded-lg border border-stone-200 px-4 py-6 text-sm text-ink-400 text-center">
-            No payments due in the next 30 days.
-          </p>
-        )}
-      </section>
+      {/* Countdown + alerts + widget rows */}
+      <CountdownCard wedding={wedding} />
+
+      <AlertCenter weddingId={wedding.id} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <UpcomingPayments />
+        <RsvpProgress weddingId={wedding.id} />
+      </div>
     </div>
   );
 }
