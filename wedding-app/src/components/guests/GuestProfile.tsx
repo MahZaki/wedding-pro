@@ -9,8 +9,8 @@ import { Select } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
 import {
   updateGuestProfile,
-  type GuestProfileInput,
 } from "@/app/(app)/guests/actions";
+import type { GuestProfileInput } from "@/lib/schemas/guest";
 import { GuestGifts } from "@/components/gifts/GuestGifts";
 
 export interface GuestDetail {
